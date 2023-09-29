@@ -1,0 +1,163 @@
+html, body { 
+    margin:0;
+    height:100%; 
+    user-select: none;
+}
+
+.background {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    object-fit: cover;
+    background-size: 100%;
+    transition: all 1s ease-in-out;
+    z-index: -999;
+}
+
+.table_courses {
+    text-align: center;
+    margin: 0 auto;
+    background-color: #729ece;
+    border-radius: 30px;
+}
+
+button {
+    background-color: #729ece;
+    border-radius: 5px;
+}
+
+.text_page {
+    color: #729ece; 
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cutbox {
+    position: absolute;
+	z-index: -2;
+	top: 0px;
+	height: 250px;
+	width: 250px;
+	transition: all 0.9s ease-out;
+}
+
+.time_block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    border-radius: 150px;
+    width: 250px;
+    height: 250px;
+    backdrop-filter: blur(3px);
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 3px 3px 3px rgba(0,0,0,0.2), -2px -2px 5px rgba(255,255,255,0.5);
+    margin: 10px;
+    overflow: hidden;
+    transition: all 1s ease-in-out;
+}
+
+.time_block h1 {
+    font-size: 80px;
+    flex-grow: 1;
+    margin: 20% 0 0 0;
+}
+
+.time_block h2 {
+    font-size: 40px;
+    margin: 0 0 10%;
+}
+
+#container_base {
+    width: fit-content;
+    margin: 0 auto;
+    z-index: 1;
+    opacity: 0.7;
+}
+
+#container_page {
+    text-align: center;
+    margin: 15px;
+}
+
+#container_timer {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    right: 0;
+    width: fit-content;
+    flex-direction: column;
+    margin: 0 auto;
+    background-image: linear-gradient(to bottom, #729ece, rgba(255, 255, 255, 0));
+    border-radius: 60px;
+}
+
+#event_block {
+    width: fit-content;
+    text-align: center;
+    color: white;
+}
+
+#event_block h1{
+    display: inline-block;
+    font-size: 70px;
+    margin: 0px 50px 0px 50px;
+    font-weight: normal;
+    text-shadow: 0px 0px 15px red;
+}
+
+#event_block h2{
+    display: inline-block;
+    font-size: 45px;
+    margin: 5px;
+    font-weight: normal;
+    text-shadow: 0px 0px 10px #729ece;
+}
+
+#event_block h3{
+    display: inline-block;
+    font-size: 30px;
+    margin: 5px;
+    font-weight: normal;
+    text-shadow: 0px 0px 10px #729ece;
+}
+
+#timer_blocks {
+    margin: 25px 0 0 0;
+}
+
+#day_block {
+    text-shadow: 1px 1px 5px red, -1px -1px 5px red;
+}
+
+#hour_block {
+    text-shadow: 1px 1px 5px green, -1px -1px 5px green;
+}
+
+#minute_block {
+    text-shadow: 1px 1px 5px blue, -1px -1px 5px blue;
+}
+
+#second_block {
+    text-shadow: 1px 1px 5px purple, -1px -1px 5px purple;
+}
+
+#cutbox_day {
+    background: #ff82825e;
+}
+
+#cutbox_hour {
+    background: #93FF825e;
+}
+
+#cutbox_minute {
+    background: #82C8FF5e;
+}
+
+#cutbox_second {
+    background: #D782FF5e;
+}
