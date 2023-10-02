@@ -1,24 +1,28 @@
-html, body { 
-    margin:0;
-    height:100%; 
+
+@font-face {
+  font-family: "Yu Pearl";
+  src: url("/fonts/YuPearl.ttf");
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+    font-family: "Yu Pearl";
     user-select: none;
 }
 
 .background {
+    position: absolute;
+    
     width: 100%;
     height: 100%;
-    position: absolute;
+    
     object-fit: cover;
+    background-repeat: no-repeat;
     background-size: 100%;
     transition: all 1s ease-in-out;
     z-index: -999;
-}
-
-.table_courses {
-    text-align: center;
-    margin: 0 auto;
-    background-color: #729ece;
-    border-radius: 30px;
 }
 
 button {
@@ -26,8 +30,12 @@ button {
     border-radius: 5px;
 }
 
+.trans {
+    opacity: 0.75;
+}
+
 .text_page {
-    color: #729ece; 
+    color: #729ece;
 }
 
 .container {
@@ -38,49 +46,104 @@ button {
 
 .cutbox {
     position: absolute;
-	z-index: -2;
-	top: 0px;
-	height: 250px;
-	width: 250px;
-	transition: all 0.9s ease-out;
+    z-index: -2;
+    top: 0px;
+    height: 250px;
+    width: 250px;
+    transition: all 0.9s ease-out;
 }
 
 .time_block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position: relative;
+    
     color: white;
-    border-radius: 150px;
     width: 250px;
     height: 250px;
-    backdrop-filter: blur(3px);
-    background-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 3px 3px 3px rgba(0,0,0,0.2), -2px -2px 5px rgba(255,255,255,0.5);
     margin: 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(3px);
+    border-radius: 150px;
+    box-shadow: 
+        5px 5px 5px rgba(0, 0, 0, 0.2), 
+        -5px -5px 5px rgba(255, 255, 255, 0.5);
+    
     overflow: hidden;
+    transition-origin: center;
     transition: all 1s ease-in-out;
 }
 
 .time_block h1 {
+    position: absolute;
+    left: 50%;
+    top: 25%;
+    transform: translate(-50%, -50%);
+    
     font-size: 80px;
-    flex-grow: 1;
-    margin: 20% 0 0 0;
 }
 
 .time_block h2 {
-    font-size: 40px;
-    margin: 0 0 10%;
+    position: absolute;
+    left: 50%;
+    top: 65%;
+    transform: translate(-50%, -50%);
+        
+    font-size: 55px;
 }
 
-#container_base {
-    width: fit-content;
+#table_courses {
     margin: 0 auto;
-    z-index: 1;
-    opacity: 0.7;
+    background-image: linear-gradient(to top, #729ece, #CCCCFF);
+    border-radius: 30px;
+    box-shadow: 0px 5px 5px 5px #729ece;
+
+    font-size: 70px;
+    text-align: center;
+}
+
+#week,
+#day {
+    color: white;
+    font-size: 0.85em;
+    transition: all 1s ease-out;
+}
+
+#day {
+    width: 1em;
+    font-size: 1.3em;
+}
+
+#week span {
+    text-shadow: 
+        3px 3px 3px #566573,
+        -3px -3px 3px #CCCCFF;
+}
+
+#headRow th,
+#courseRow td {
+    color: white;
+    padding: 0px 8px 0px 8px;
+    background-color: #566573;
+    box-shadow: 0px 0px 8px 3px #729ece inset;
+    font-size: 1em;
+    transition: all 1s ease-out;
+}
+
+#headRow th {
+    border-top-left-radius: 0.3em;
+    border-top-right-radius: 0.3em;
+
+    text-shadow: 3px 3px 3px #000;
+}
+
+#courseRow td {
+    border-bottom-left-radius: 0.3em;
+    border-bottom-right-radius: 0.3em;
 }
 
 #container_page {
-    text-align: center;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
     margin: 15px;
 }
 
@@ -89,11 +152,13 @@ button {
     bottom: 15px;
     left: 0;
     right: 0;
+
     width: fit-content;
     flex-direction: column;
     margin: 0 auto;
-    background-image: linear-gradient(to bottom, #729ece, rgba(255, 255, 255, 0));
+    background-image: linear-gradient(to bottom, #729ece, #dcdcff);
     border-radius: 60px;
+    box-shadow: 0px 0px 30px #ccccff;
 }
 
 #event_block {
@@ -102,15 +167,22 @@ button {
     color: white;
 }
 
-#event_block h1{
+#event_block h1 {
     display: inline-block;
-    font-size: 70px;
-    margin: 0px 50px 0px 50px;
+    
+    padding: 16px;
+    margin: 0px 50px;
+    border-radius: 30px;
+    box-shadow: 
+        5px 5px 5px rgba(0, 0, 0, 0.2) inset, 
+        -5px -5px 5px rgba(255, 255, 255, 0.5) inset;
+    
     font-weight: normal;
+    font-size: 70px;
     text-shadow: 0px 0px 15px red;
 }
 
-#event_block h2{
+#event_block h2 {
     display: inline-block;
     font-size: 45px;
     margin: 5px;
@@ -118,7 +190,7 @@ button {
     text-shadow: 0px 0px 10px #729ece;
 }
 
-#event_block h3{
+#event_block h3 {
     display: inline-block;
     font-size: 30px;
     margin: 5px;

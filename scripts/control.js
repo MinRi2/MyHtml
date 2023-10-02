@@ -1,5 +1,6 @@
+// 默认课头
 const defaultHeadArray = [
-    "早", 
+    "早",
     "一", "二", "三", "四", "五",
     "午",
     "六", "七", "八",
@@ -25,7 +26,7 @@ const defaultHeadSch = [
     "18:30-19:15", // 测
 ];
 
-// 没有课填空字符串
+// 每日课表 没有课填空字符串
 const dayCoursesArray = [
     [
         "", // 早读
@@ -72,7 +73,7 @@ const dayCoursesArray = [
         "英", "物", "政", "数", "数",
         "英",
         "化", "生", "劳",
-        "英", "生", "英", 
+        "英", "生", "英",
         "生"
     ], // 周五
     [
@@ -85,17 +86,8 @@ const dayCoursesArray = [
     ] // 周六
 ];
 
-// 09/27
-dayCoursesArray[3][6] = "听";
-
-// 09/28
-dayCoursesArray[4][4] = "化";
-// dayCoursesArray[4][7] = "自";
-// dayCoursesArray[4][8] = "通";
-dayCoursesArray[4][9] = "心";
-
 // 在这里修改课头结束时间
-function specialHeadSchedule(){
+function specialHeadSchedule() {
     // 周一没有大课间
     let mondayHeadSchedule = daySchedules[1].headSchedule;
     mondayHeadSchedule[0].setTime("7:25", "7:40");
@@ -103,7 +95,7 @@ function specialHeadSchedule(){
     mondayHeadSchedule[2].setTime("8:35", "9:15");
 
     let saturdayHeadSchedule = daySchedules[6].headSchedule;
-    saturdayHeadSchedule[13].setTime("14:50", "15:30"); // 周六 第六节周测s
+    saturdayHeadSchedule[13].setTime("14:50", "15:30"); // 周六 第六节是周测时间
 
     // 周日高三课时安排
     let sundayHeadSchedule = daySchedules[0].headSchedule;
@@ -113,19 +105,19 @@ function specialHeadSchedule(){
     sundayHeadSchedule[13].setTime("00:00", "00:00"); // 周日没有周测
 }
 
-function setEvents(){
+function setEvents() {
     let today = new Date().getDay();
     let todaySchedule = daySchedules[today].headSchedule;
     let weekExamSchedule = todaySchedule[13];
 
     addEvents(
         new TimerEvent(1, "周测", weekExamSchedule.startTime, weekExamSchedule.endTime),
-        new TimerEvent(2, "国庆", null, "09/28 17:35", "久在樊笼里，复得返自然。 ——陶渊明")
+        new TimerEvent(0, "回校", null, "10/06 12:00"),
     );
 }
 
 // 调整成考试模式
-function exam(){
+function exam() {
     // 十月联考
     let mondaySchedule = daySchedules[1];
     mondaySchedule.headArray = [
@@ -184,13 +176,13 @@ specialHeadSchedule();
 
 setEvents();
 
-// exam();
+exam();
 
 initCourses();
 initTimer();
 
-function setCourses(){
-    for(let i = 0, len = daySchedules.length; i < len; i++){
+function setCourses() {
+    for (let i = 0, len = daySchedules.length; i < len; i++) {
         let schedule = daySchedules[i];
         schedule.headArray = defaultHeadArray;
         schedule.headSchedule = TimeSchedule.timeArrayToTimeScheduleArray(defaultHeadSch);

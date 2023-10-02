@@ -34,7 +34,7 @@ class TimerEvent{
 
 const timerEvents = [];
 
-const boxSize = 250;
+const boxSize = 250, marigin = "10px";
 
 function addEvents(...events){
     events.forEach(e => timerEvents.push(e));
@@ -130,8 +130,10 @@ function initTimer(){
         function cutbox(block, cutbox, fract, removeBlock){
             if(removeBlock){
                 block.style.width = block.style.height = "0px";
+                block.style.margin = "0px";
             }else{
                 block.style.width = block.style.height = boxSize + "px";
+                block.style.margin = marigin;
                 cutbox.style.top = boxSize * (1 - fract) + "px";
             }
         }

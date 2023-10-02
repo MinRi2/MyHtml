@@ -1,58 +1,67 @@
 <!doctype html>
 <html>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <head> 
-        <link rel="stylesheet" type="text/css" href="./css/style.css">
-        <script src="./scripts/dateUtils.js"></script>
-    </head> 
-    <body>
-        <div class="background" id="background_image"></div>
-        <!-- <video preload muted autoplay loop class="background" id="background_video"></video> -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
-        <div id="container_base">
-                <table class="table_courses">
-                    <tr id="headRow"></tr> 
-                    <tr id="courseRow"></tr>
-                </table>
-                <div id="container_page">
-                    <div>
-                        <button id="lastPage"><</button>
-                        <span class="text_page" id="currentPage">0/0</span>
-                        <button id="nextPage">></button>
-                    </div>
-                </div>
-        </div>
-        <div class="container" id="container_timer">
-            <div id="event_block">
-                <h1 id="event_name"></h1>
-                <div>
-                    <h2 id="event_end_time"></h2>
-                    <h3 id="event_discription"></h3>
-                </div>
-            </div>
-            <div class="container" id="timer_blocks">
-                <div class="time_block" id="day_block">
-                    <div class="cutbox" id="cutbox_day"></div>
-                    <h1 id="timer_day">12</h1><h2>天</h2>
-                </div>
-                <div class="time_block" id="hour_block">
-                    <div class="cutbox" id="cutbox_hour"></div>
-                    <h1 id="timer_hour">12</h1><h2>时</h2>
-                </div>
-                <div class="time_block" id="minute_block">
-                    <div class="cutbox" id="cutbox_minute"></div>
-                    <h1 id="timer_minute">12</h1><h2>分</h2>
-                </div>
-                <div class="time_block" id="second_block">
-                    <div class="cutbox" id="cutbox_second"></div>
-                    <h1 id="timer_second">12</h1><h2>秒</h2>
-                </div>
+<head>
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
+    <script src="./scripts/dateUtils.js"></script>
+    <script src="./scripts/textChangeAnimation.js"></script>
+</head>
+
+<body>
+    <div class="background" id="background_image"></div>
+    <!-- <video preload muted autoplay loop class="background" id="background_video"></video> -->
+
+    <div class="trans">
+        <table id="table_courses">
+            <tr id="headRow"></tr>
+            <tr id="courseRow"></tr>
+        </table>
+        <div id="container_page">
+            <div>
+                <button id="lastPage">↑</button>
+                <span class="text_page" id="currentPage">0/0</span>
+                <button id="nextPage">↓</button>
             </div>
         </div>
-    </body>
-    <script src="./scripts/pictureBackground.js"></script>
-    <!-- <script src="./scripts/videoBackground.js"></script> -->
-    <script src="./scripts/courses.js"></script>
-    <script src="./scripts/timer.js"></script>
-    <script src="./scripts/control.js"></script>
+    </div>
+    
+    <div class="container trans" id="container_timer">
+        <div id="event_block">
+            <h1 id="event_name"></h1>
+            <div>
+                <h2 id="event_end_time"></h2>
+                <h3 id="event_discription"></h3>
+            </div>
+        </div>
+        <div class="container" id="timer_blocks">
+            <div class="time_block" id="day_block">
+                <div class="cutbox" id="cutbox_day"></div>
+                <h1 id="timer_day">12</h1>
+                <h2>天</h2>
+            </div>
+            <div class="time_block" id="hour_block">
+                <div class="cutbox" id="cutbox_hour"></div>
+                <h1 id="timer_hour">12</h1>
+                <h2>时</h2>
+            </div>
+            <div class="time_block" id="minute_block">
+                <div class="cutbox" id="cutbox_minute"></div>
+                <h1 id="timer_minute">12</h1>
+                <h2>分</h2>
+            </div>
+            <div class="time_block" id="second_block">
+                <div class="cutbox" id="cutbox_second"></div>
+                <h1 id="timer_second">12</h1>
+                <h2>秒</h2>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="./scripts/pictureBackground.js"></script>
+<!-- <script src="./scripts/videoBackground.js"></script> -->
+<script src="./scripts/courses.js"></script>
+<script src="./scripts/timer.js"></script>
+<script src="./scripts/control.js"></script>
+
 </html>

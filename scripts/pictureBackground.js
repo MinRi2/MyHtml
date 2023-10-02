@@ -28,6 +28,15 @@ const randomUrl = photoApi + "?" + new URLSearchParams({
     count: fetchCount
 });
 
+const imageParams = new URLSearchParams({
+    fit: "min",
+    fill: "blur",
+    w: screen.width,
+    h: screen.height,
+});
+
+console.log(screen.width, screen.height);
+
 const loadedImages = [];
 
 setImage(defaultImage);
@@ -56,7 +65,7 @@ function fetchImages(){
 
 function loadImages(imagesUrls){
     imagesUrls.forEach(imageData => {
-        let url = imageData.urls.raw + "&fit=min&fill=blur&w=1920&h=1280";
+        let url = imageData.urls.raw + "&" + imageParams;
         
         // 预加载图片
         preloadImage(url);
