@@ -46,7 +46,7 @@ body {
     transition: all 0.9s ease-out;
 }
 
-.time_block {
+.timer_block {
     position: relative;
 
     color: white;
@@ -61,33 +61,39 @@ body {
         -5px -5px 5px rgba(255, 255, 255, 0.5);
 
     overflow: hidden;
-    -webkit-transform-origin: center;
     transition: all 1s ease-in-out;
 }
 
-.time_block h1 {
+.timer_block h1 {
     position: absolute;
     left: 50%;
-    top: 25%;
+    top: 50%;
     transform: translate(-50%, -50%);
+    
+    margin: 0;
+    padding: 0;
 
     font-size: 80px;
 }
 
-.time_block h2 {
+.timer_block h2 {
     position: absolute;
     left: 50%;
-    top: 65%;
-    transform: translate(-50%, -50%);
-
+    bottom: 5%;
+    transform: translate(-50%, 0);
+    
+    margin: 0;
+    padding: 0;
+    
     font-size: 55px;
 }
 
 #courses_wrapper {
     position: absolute;
     left: 50%;
-    width: fit-content;
     transform: translate(-50%, 0);
+    
+    width: fit-content;
 }
 
 #courses_container {
@@ -197,16 +203,20 @@ body {
 
 #event_block h2 {
     display: inline-block;
-    font-size: 45px;
+    
     margin: 5px;
+        
+    font-size: 45px;
     font-weight: normal;
     text-shadow: 0px 0px 10px #729ece;
 }
 
 #event_block h3 {
     display: inline-block;
-    font-size: 30px;
+    
     margin: 5px;
+    
+    font-size: 30px;
     font-weight: normal;
     text-shadow: 0px 0px 10px #729ece;
 }
@@ -245,4 +255,104 @@ body {
 
 #cutbox_second {
     background: #D782FF5e;
+}
+
+.clock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    width: 1000px;
+    height: 250px;
+
+    transform: translate(-50%, -50%);
+}
+
+.clock .clock_block {
+    position: relative;
+    flex: 1;
+    
+    margin: 8px;
+    background: radial-gradient(circle at center, #dcdcff, #729ece);
+    backdrop-filter: blur(3px);
+    border-radius: 10%;
+    box-shadow:
+        5px 5px 5px rgba(0, 0, 0, 0.4),
+        8px 8px 5px rgba(0, 0, 0, 0.2),
+        -5px -5px 5px rgba(255, 255, 255, 0.5),
+        -8px -8px 5px rgba(255, 255, 255, 0.7);
+    overflow: hidden;
+}
+
+.clock .splitter {
+    position: relative;
+    width: 64px;    
+    --dot-size: 40px;
+}
+
+.clock .splitter::before {
+    content: " ";
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: 50%;
+    box-shadow:
+        -5px -5px 5px rgba(0, 0, 0, 0.2) inset,
+        5px 5px 5px rgba(255, 255, 255, 0.5) inset;
+    background: radial-gradient(circle at center, #aaa, #729ece);
+}
+
+.clock .splitter::after {
+    content: " ";
+    position: absolute;
+    left: 50%;
+    top: 70%;
+    transform: translate(-50%, -50%);
+    
+    width: var(--dot-size);
+    height: var(--dot-size);
+    border-radius: 50%;
+    box-shadow:
+        -5px -5px 5px rgba(0, 0, 0, 0.2) inset,
+        5px 5px 5px rgba(255, 255, 255, 0.5) inset;
+    background: radial-gradient(circle at center, #aaa, #729ece);
+}
+
+.clock_block .time {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    transform-origin: center;
+            
+    color: white;
+    font-size: 150px;
+    text-shadow: 
+        1px 1px 3px #729ece,
+        3px 3px 3px #729ece,
+        6px 6px 3px #729ece,
+        9px 9px 3px #729ece;
+}
+
+.clock_block .unit {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 0);
+    
+    width: 100%;
+    background: #6665;
+    backdrop-filter: blur(3px);
+    
+    color: white;
+    font-size: 55px;
+    text-align: center;
+    text-shadow: 
+        1px 1px 3px #729ece,
+        3px 3px 3px #729ece,
+        6px 6px 3px #729ece;
 }

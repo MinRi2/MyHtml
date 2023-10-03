@@ -107,7 +107,6 @@ function initTimer() {
         setTime(days, hours, minutes, seconds, currentEvent);
         
         function setInfo(name, endTimeText, discription){
-            console.log("setinfo")
             animations.textChange(eventElem, 
                 () => eventElem.textContent == name, 
                 () => eventElem.textContent = name, {
@@ -130,10 +129,10 @@ function initTimer() {
         }
 
         function setTime(days, hours, minutes, seconds, event) {
-            const displayDays = Math.floor(days),
-                displayHours = Math.floor(hours),
-                displayMinutes = Math.floor(minutes),
-                displaySeconds = Math.floor(seconds);
+            const displayDays = Math.ceil(days),
+                displayHours = Math.ceil(hours),
+                displayMinutes = Math.ceil(minutes),
+                displaySeconds = Math.ceil(seconds);
 
             timerDay.textContent = displayDays;
             timerHour.textContent = displayHours;

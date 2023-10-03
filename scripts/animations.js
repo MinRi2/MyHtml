@@ -14,12 +14,15 @@ const animations = {
         
         function animate(elem, isSame, changeCons, customOpts = {
             duration: 1000
-        }){
+        }, customFames = {}){
             if(isSame()){
                 return;
             }
             
-            const animation = elem.animate(animateKeyFrames, {
+            const animation = elem.animate({
+                ...animateKeyFrames,
+                ...customFames,
+            }, {
                 ...animateOpts,
                 ...customOpts,
             });

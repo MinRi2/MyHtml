@@ -1,5 +1,6 @@
 const videoFolder = "./videos/";
 const videoUrls = [
+    "littleCat.webm", "wheel.webm"
 ].map(url => videoFolder + url);
 
 var videoIndex = 0;
