@@ -1,3 +1,4 @@
 *.bak
-control.js
-picture-background.js
+
+scripts/control.js
+scripts/picture-background.js
