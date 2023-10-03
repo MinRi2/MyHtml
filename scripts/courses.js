@@ -23,15 +23,19 @@ const colorMap = {
     班: "#f2a65e",
     跑: "#f2a65e",
     自: "#c10ce9",
-    
+
     测: "#996699",
 };
+
 
 class DaySchedule {
     headArray;
     headSchedule;
     courseArray;
 
+    /**
+     * @param {string} dayName
+     */
     constructor(dayName) {
         this.dayName = dayName;
     }
@@ -44,11 +48,11 @@ class TimeSchedule {
     }
 
     getStartDate() {
-        return stringToDate(this.startTime);
+        return toDate(this.startTime);
     }
 
     getEndDate() {
-        return stringToDate(this.endTime);
+        return toDate(this.endTime);
     }
 
     setTime(newStartTIme, newEndTime) {
@@ -57,13 +61,13 @@ class TimeSchedule {
     }
 
     static timeArrayToTimeScheduleArray(array, timeSplit = "-") {
-        let result = [];
+        const result = [];
 
         for (let i = 0; i < array.length; i++) {
-            let time = array[i];
+            const time = array[i];
 
-            let splitArray = time.split(timeSplit);
-            let startTime = splitArray[0],
+            const splitArray = time.split(timeSplit);
+            const startTime = splitArray[0],
                 endTime = splitArray[1];
 
             result.push(new TimeSchedule(startTime, endTime));
@@ -84,27 +88,21 @@ const daySchedules = [
 ];
 
 function initCourses() {
-    const headRow = document.querySelector("#headRow"),
-        courseRow = document.querySelector("#courseRow");
-    const dayElem = document.createElement("td"),
-        weekElem = document.createElement("td");
+    const dayElem = document.querySelector("#day"),
+        weekElem = document.querySelector("#week");
+    const headRow = document.querySelector("#head-row"),
+        courseRow = document.querySelector("#course-row");
 
-    dayElem.id = "day";
-    weekElem.id = "week";
+    let today = 0;
+    let courceDay = 0;
+    let offsetDay = 0;
 
-    var today = 0;
-    var courceDay = 0;
-    var offsetDay = 0;
-
-    var daySchedule = null;
+    let daySchedule = null;
 
     init();
 
     function init() {
         today = courceDay = new Date().getDay();
-
-        dayElem.rowSpan = "2";
-        weekElem.rowSpan = "2";
 
         dayElem.addEventListener("mousedown", event => {
             if (event.button == 0) {
@@ -125,7 +123,7 @@ function initCourses() {
     }
 
     function initUpdater() {
-        let endDate = stringToDate(nextDayTime);
+        let endDate = toDate(nextDayTime);
         checkIntervalOrOver(endDate, nextDay, nextDay);
 
         // 新的一天
@@ -146,62 +144,44 @@ function initCourses() {
     function refresh() {
         daySchedule = daySchedules[courceDay];
 
+        rebuildTable();
         rebuildHeadRow();
         rebuildCourseRow();
 
         let dayText = daySchedule.dayName;
-        textChangeAnimation.change(
-            dayElem,
+        animations.textChange(dayElem,
             () => dayElem.textContent == dayText,
-            () => dayElem.textContent = dayText,
-        );
-        
-        let weekText = "第" + "<br><span>" + getCourseWeek() + "</span><br>" + "周";        
-        textChangeAnimation.change(
-            weekElem,
+            () => dayElem.textContent = dayText, {
+            duration: 200,
+        });
+
+        let weekText = "第" + "<br><span>" + getCourseWeek() + "</span><br>" + "周";
+        animations.textChange(weekElem,
             () => weekElem.innerHTML == weekText,
-            () => weekElem.innerHTML = weekText,
-        );
-    }
-
-    function rebuildHeadRow() {        
-        clearChildren(headRow);
-
-        headRow.appendChild(dayElem);
-
-        let { headArray } = daySchedule;
-        for (let i = 0; i < headArray.length; i++) {
-            let e = document.createElement("th");
-            
-            let head = headArray[i];
-            
-            e.textContent = head;
-
-            headRow.appendChild(e);
-        }
-
-        headRow.appendChild(weekElem);
+            () => weekElem.innerHTML = weekText, {
+            duration: 1000,
+        });
     }
 
     function refreshHead() {
-        let children = headRow.getElementsByTagName("th");
+        const children = headRow.children;
 
-        let nowDate = new Date();
+        const nowDate = new Date();
 
-        let { headArray, headSchedule } = daySchedule;
+        const { headArray, headSchedule } = daySchedule;
         for (let i = 0, len = headArray.length; i < len; i++) {
-            let child = children[i];
-            let obj = headSchedule[i];
+            const child = children[i];
+            const obj = headSchedule[i];
 
             let color = "white";
             if (offsetDay < 0) {
                 color = "#a2a2a2";
             } else if (offsetDay == 0) {
-                let startDate = obj.getStartDate(),
+                const startDate = obj.getStartDate(),
                     endDate = obj.getEndDate();
 
                 if (nowDate > endDate) {
-                    color = "#a2a2a2"
+                    color = "#a2a2a2";
                 } else if (nowDate > startDate) {
                     color = "#f7dC6f";
                 }
@@ -211,47 +191,98 @@ function initCourses() {
         }
     }
 
-    function rebuildCourseRow() {
-        let oldChildren = [...courseRow.children];
+    function rebuildTable() {
+        const { headArray, courseArray} = daySchedule;
         
-        clearChildren(courseRow);
+        limmitChildren(headRow, headArray.length, (e, i) => {
+            const th = document.createElement("th");
+            e.appendChild(th);
+        }, (e, i, child) => {
+            e.removeChild(child);
+        });
+        
+        limmitChildren(courseRow, courseArray.length, (e, i) => {
+            const td = document.createElement("td");
+            e.appendChild(td);
+        }, (e, i, child) => {
+            e.removeChild(child);
+        });
+
+        function limmitChildren(element, limmitLength, supplyHandler, overHandler){
+            const children = Array.from(element.children);
+            const childrenLength = children.length;
+
+            if (childrenLength == limmitLength) {
+                return;
+            }
+    
+            let start, end;
+            let handler;
+    
+            if (childrenLength < limmitLength) {
+                start = childrenLength;
+                end = limmitLength;
+                handler = supplyHandler;
+            } else {
+                start = limmitLength;
+                end = childrenLength;
+                handler = (element, i) => {
+                    const child = children[i];
+                    console.log(i)
+                    overHandler(element, i, child);
+                };
+            }
+    
+            for (let i = start; i < end; i++) {
+                handler(element, i);
+            }
+        }
+    }
+
+    function rebuildHeadRow() {
+        const children = headRow.children;
+
+        const { headArray } = daySchedule;
+        for (let i = 0; i < headArray.length; i++) {
+            const head = headArray[i];
+            const e = children[i];
+
+            e.textContent = head;
+        }
+    }
+
+    function rebuildCourseRow() {
+        const children = courseRow.children;
 
         const { courseArray } = daySchedule;
-
         for (let i = 0; i < courseArray.length; i++) {
-            const e = document.createElement("td");
-            
-            courseRow.appendChild(e);
-            
+            const e = children[i];
+            const oldCourse = e.textContent;
+
             let course = courseArray[i],
                 textColor = "#a2a2a2",
                 shadowColor = null;
-            const oldCourse = i < oldChildren.length ? oldChildren[i].textContent : "";
-            
-            e.textContent = oldCourse;
-            
+                
             if (!isSelfStudy(course)) {
                 if (course.includes("*")) {
                     course = course.replace("*", "");
                 }
-    
+
                 textColor = "white";
                 shadowColor = colorMap[course[0]];
             }
             
-            textChangeAnimation.change(e, () => oldCourse == course, () => {
-                e.textContent = course;
-                e.style.color = textColor;
-                
-                if (shadowColor) {
-                    e.style.textShadow = 
-                        "0px 0px 10px " + shadowColor + "," + 
-                        "3px 3px 3px " + shadowColor;
-                }
-            }, {
-                duration: 500,
-                delay: 100 * i,
-            });
+            setTimeout(() => {
+                animations.textChange(e, () => oldCourse == course, () => {
+                    e.textContent = course;
+                    e.style.color = textColor;
+                    e.style.textShadow = shadowColor ?
+                        "0px 0px 10px " + shadowColor + "," +
+                        "3px 3px 3px " + shadowColor : "";
+                }, {
+                    duration: 500,
+                });
+            }, 150 * i);
         }
     }
 
@@ -267,6 +298,7 @@ function initCourses() {
 
         offsetDay = (courceDay == 0 ? max + 1 : courceDay) - today;
         offsetDay = offsetDay > 7 ? 0 : offsetDay;
+        
         refresh();
     }
 
@@ -281,14 +313,8 @@ function initCourses() {
     }
 
     function getCourseWeek() {
-        let nowDate = new Date();
-        let day = (nowDate - weekStartDate) / 1000 / 60 / 60 / 24;
+        const nowDate = new Date();
+        const day = (nowDate - weekStartDate) / 1000 / 60 / 60 / 24;
         return Math.floor((day + offsetDay) / 7) + 1;
-    }
-
-    function clearChildren(parent) {
-        while (parent.hasChildNodes()) {
-            parent.removeChild(parent.firstChild);
-        }
     }
 }

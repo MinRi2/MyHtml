@@ -4,37 +4,41 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="./css/style.css">
-    <script src="./scripts/dateUtils.js"></script>
-    <script src="./scripts/textChangeAnimation.js"></script>
+    <script src="./scripts/date-utils.js"></script>
+    <script src="./scripts/animations.js"></script>
 </head>
 
 <body>
     <div class="background" id="background_image"></div>
     <!-- <video preload muted autoplay loop class="background" id="background_video"></video> -->
 
-    <div class="trans">
-        <table id="table_courses">
-            <tr id="headRow"></tr>
-            <tr id="courseRow"></tr>
-        </table>
+    <div class="trans" id="courses_wrapper">
+        <div class="container" id="courses_container">
+            <div id="day"></div>
+            <table id="courses">
+                <tr id="head-row"></tr>
+                <tr id="course-row"></tr>
+            </table>
+            <div id="week"></div>
+        </div>
         <div id="container_page">
             <div>
-                <button id="lastPage">↑</button>
-                <span class="text_page" id="currentPage">0/0</span>
-                <button id="nextPage">↓</button>
+                <button id="last-page">↑</button>
+                <span class="text_page" id="current-page">0/0</span>
+                <button id="next-page">↓</button>
             </div>
         </div>
     </div>
-    
+
     <div class="container trans" id="container_timer">
-        <div id="event_block">
+        <div class="container" id="event_block">
             <h1 id="event_name"></h1>
             <div>
                 <h2 id="event_end_time"></h2>
                 <h3 id="event_discription"></h3>
             </div>
         </div>
-        <div class="container" id="timer_blocks">
+        <div class="container">
             <div class="time_block" id="day_block">
                 <div class="cutbox" id="cutbox_day"></div>
                 <h1 id="timer_day">12</h1>
@@ -57,11 +61,12 @@
             </div>
         </div>
     </div>
+    <div id="test" style="font-size:80px"></div>
 </body>
-<script src="./scripts/pictureBackground.js"></script>
-<!-- <script src="./scripts/videoBackground.js"></script> -->
+<script src="./scripts/picture-background.js"></script>
+<!-- <script src="./scripts/video-background.js"></script> -->
 <script src="./scripts/courses.js"></script>
-<script src="./scripts/timer.js"></script>
+<script src="./scripts/event-timer.js"></script>
 <script src="./scripts/control.js"></script>
 
 </html>

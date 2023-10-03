@@ -89,16 +89,16 @@ const dayCoursesArray = [
 // 在这里修改课头结束时间
 function specialHeadSchedule() {
     // 周一没有大课间
-    let mondayHeadSchedule = daySchedules[1].headSchedule;
+    const mondayHeadSchedule = daySchedules[1].headSchedule;
     mondayHeadSchedule[0].setTime("7:25", "7:40");
     mondayHeadSchedule[1].setTime("7:45", "8:25");
     mondayHeadSchedule[2].setTime("8:35", "9:15");
 
-    let saturdayHeadSchedule = daySchedules[6].headSchedule;
+    const saturdayHeadSchedule = daySchedules[6].headSchedule;
     saturdayHeadSchedule[13].setTime("14:50", "15:30"); // 周六 第六节是周测时间
 
     // 周日高三课时安排
-    let sundayHeadSchedule = daySchedules[0].headSchedule;
+    const sundayHeadSchedule = daySchedules[0].headSchedule;
     sundayHeadSchedule[3].setTime("9:10", "9:50");
     sundayHeadSchedule[4].setTime("10:00", "10:40");
     sundayHeadSchedule[5].setTime("10:50", "11:30");
@@ -106,9 +106,9 @@ function specialHeadSchedule() {
 }
 
 function setEvents() {
-    let today = new Date().getDay();
-    let todaySchedule = daySchedules[today].headSchedule;
-    let weekExamSchedule = todaySchedule[13];
+    const today = new Date().getDay();
+    const todaySchedule = daySchedules[today].headSchedule;
+    const weekExamSchedule = todaySchedule[13];
 
     addEvents(
         new TimerEvent(1, "周测", weekExamSchedule.startTime, weekExamSchedule.endTime),
@@ -119,7 +119,7 @@ function setEvents() {
 // 调整成考试模式
 function exam() {
     // 十月联考
-    let mondaySchedule = daySchedules[1];
+    const mondaySchedule = daySchedules[1];
     mondaySchedule.headArray = [
         "8:00-10:30",
         "10:45-12:00",
@@ -144,7 +144,7 @@ function exam() {
         new TimerEvent(0, "数学", "10/9 15:00", "10/9 17:00"),
     );
 
-    let tuesdaySchedule = daySchedules[2];
+    const tuesdaySchedule = daySchedules[2];
     tuesdaySchedule.headArray = [
         "9:15-10:30",
         "10:45-12:00",
@@ -173,17 +173,18 @@ function exam() {
 
 setCourses();
 specialHeadSchedule();
-
 setEvents();
 
-exam();
+if(withinTime("10/08", "10/11")){
+    exam();
+}
 
 initCourses();
 initTimer();
 
 function setCourses() {
     for (let i = 0, len = daySchedules.length; i < len; i++) {
-        let schedule = daySchedules[i];
+        const schedule = daySchedules[i];
         schedule.headArray = defaultHeadArray;
         schedule.headSchedule = TimeSchedule.timeArrayToTimeScheduleArray(defaultHeadSch);
         schedule.courseArray = dayCoursesArray[i];
