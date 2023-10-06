@@ -1,3 +1,7 @@
+const clockYearElem = document.querySelector("#clock_year"),
+    clockMonthElem = document.querySelector("#clock_month"),
+    clockDayElem = document.querySelector("#clock_day");
+
 const clockHourElem = document.querySelector("#clock_hour"),
     clockMinuteElem = document.querySelector("#clock_minute"),
     clockSecondElem = document.querySelector("#clock_second");
@@ -15,6 +19,31 @@ function initClock(){
 
     function refreshClock(){
         const nowDate = new Date();
+        
+        let year = nowDate.getFullYear(),
+            month = nowDate.getMonth() + 1,
+            day = nowDate.getDate();
+        
+        month = fixed(month);
+        day = fixed(day);
+        
+        animations.textChange(clockYearElem, () => clockYearElem.textContent == year, () => {
+            clockYearElem.textContent = year;
+        }, {
+            duration: 400,
+        }, customTextChangeFrames);
+        
+        animations.textChange(clockMonthElem, () => clockMonthElem.textContent == month, () => {
+            clockMonthElem.textContent = month;
+        }, {
+            duration: 400,
+        }, customTextChangeFrames);
+        
+        animations.textChange(clockDayElem, () => clockDayElem.textContent == day, () => {
+            clockDayElem.textContent = day;
+        }, {
+            duration: 400,
+        }, customTextChangeFrames);
         
         let hour = nowDate.getHours(),
             minute = nowDate.getMinutes(),

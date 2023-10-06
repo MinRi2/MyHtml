@@ -11,6 +11,11 @@ body {
     user-select: none;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+}
+
 .background {
     position: absolute;
 
@@ -261,20 +266,54 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-
-    width: 1000px;
-    height: 250px;
-
     transform: translate(-50%, -50%);
+    
+    flex-flow: column;
+    align-items: center;
 }
 
-.clock .clock_block {
+.date_block {
+    align-items: end;
+    margin: 10px;
+    color: white;
+    font-size: 60px;
+}
+
+.date_block h1 {
+    display: inline-block;
+
+    font-weight: normal;
+    text-shadow: 
+        1px 1px 3px #729ece,
+        3px 3px 3px #729ece,
+        6px 6px 3px #729ece,
+        9px 9px 3px #729ece;
+}
+
+.date_block h2 {
+    display: inline-block;
+
+    font-siz: 0.8em;
+    font-weight: normal;
+    text-shadow: 
+        1px 1px 3px #729ece,
+        3px 3px 3px #729ece,
+        6px 6px 3px #729ece,
+        9px 9px 3px #729ece;
+}
+
+.time_clock {
+    width: 1000px;
+    height: 250px;
+}
+
+.time_clock .time_clock_block {
     position: relative;
     flex: 1;
     
     margin: 8px;
     background: radial-gradient(circle at center, #dcdcff, #729ece);
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(6px);
     border-radius: 10%;
     box-shadow:
         5px 5px 5px rgba(0, 0, 0, 0.4),
@@ -284,13 +323,13 @@ body {
     overflow: hidden;
 }
 
-.clock .splitter {
+.time_clock .splitter {
     position: relative;
     width: 64px;    
     --dot-size: 40px;
 }
 
-.clock .splitter::before {
+.time_clock .splitter::before {
     content: " ";
     position: absolute;
     left: 50%;
@@ -306,7 +345,7 @@ body {
     background: radial-gradient(circle at center, #aaa, #729ece);
 }
 
-.clock .splitter::after {
+.time_clock .splitter::after {
     content: " ";
     position: absolute;
     left: 50%;
@@ -322,7 +361,7 @@ body {
     background: radial-gradient(circle at center, #aaa, #729ece);
 }
 
-.clock_block .time {
+.time_clock_block .time {
     position: absolute;
     left: 50%;
     top: 40%;
@@ -338,15 +377,14 @@ body {
         9px 9px 3px #729ece;
 }
 
-.clock_block .unit {
+.time_clock_block .unit {
     position: absolute;
     left: 50%;
     bottom: 0;
     transform: translate(-50%, 0);
     
     width: 100%;
-    background: #6665;
-    backdrop-filter: blur(3px);
+    background: #aaa5;
     
     color: white;
     font-size: 55px;

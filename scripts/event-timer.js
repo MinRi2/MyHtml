@@ -64,7 +64,8 @@ function initTimer() {
         minuteCutBox = document.getElementById("cutbox_minute"),
         secondCutBox = document.getElementById("cutbox_second");
 
-    let currentEvent = null;
+    var currentEvent = emptyEvent;
+    var lastEvent = null;
 
     setInterval(refreshTimer, 500);
 
@@ -75,22 +76,25 @@ function initTimer() {
     function refreshTimer() {
         const nowDate = new Date();
 
-        if (currentEvent == null || !currentEvent.shouldTiming(nowDate)) {
-            const lastEvent = currentEvent;
+        if (!currentEvent || !currentEvent.shouldTiming(nowDate)) {
             currentEvent = getEvent(nowDate);
             
-            if(lastEvent != currentEvent){
-                if(currentEvent == null){
+            if(lastEvent !== currentEvent){
+                if(!currentEvent){
                     setInfo("The End", "", "");
-        
-                    setTime(0, 0, 0, 0, emptyEvent);
-                    return;
                 }else{
                     setInfo(currentEvent.name, 
                         "End: " + dateToString(currentEvent.endDate), 
                         currentEvent.discription);
                 }
+                
+                lastEvent = currentEvent;
             }
+        }
+        
+        if(!currentEvent){
+            setTime(0, 0, 0, 0, emptyEvent);
+            return;
         }
         
         const leftMiniSeconds = currentEvent.endDate - nowDate;
@@ -107,31 +111,36 @@ function initTimer() {
         setTime(days, hours, minutes, seconds, currentEvent);
         
         function setInfo(name, endTimeText, discription){
+            const customFrames = {
+                fontSize: ["", "0px"],
+                transform: ["", ""],
+            }
+            
             animations.textChange(eventElem, 
                 () => eventElem.textContent == name, 
                 () => eventElem.textContent = name, {
                 duration: 1500,
-            });
-            
+            }, customFrames);
+                        
             animations.textChange(eventEndTimeElem, 
                 () => eventEndTimeElem.textContent == endTimeText, 
                 () => eventEndTimeElem.textContent = endTimeText, {
                 duration: 500,
                 delay: 2000,
-            });
+            }, customFrames);
             
             animations.textChange(eventDiscriptionElem, 
                 () => eventDiscriptionElem.textContent == discription, 
                 () => eventDiscriptionElem.textContent = discription, {
                 duration: 500,
                 delay: 2000,
-            });
+            }, customFrames);
         }
 
         function setTime(days, hours, minutes, seconds, event) {
-            const displayDays = Math.ceil(days),
-                displayHours = Math.ceil(hours),
-                displayMinutes = Math.ceil(minutes),
+            const displayDays = Math.floor(days),
+                displayHours = Math.floor(hours),
+                displayMinutes = Math.floor(minutes),
                 displaySeconds = Math.ceil(seconds);
 
             timerDay.textContent = displayDays;
