@@ -8,70 +8,69 @@ const clockHourElem = document.querySelector("#clock_hour"),
 
 initClock();
 
-function initClock(){
+function initClock() {
     setInterval(refreshClock, 500);
-    
+
     const customTextChangeFrames = {
-        fontSize: ["", "130px"],
-        filter: ["blur(0px)", "blur(8px)"],
+        filter: ["", "blur(10px)"],
         transform: ["", ""],
     };
 
-    function refreshClock(){
-        const nowDate = new Date();
-        
+    function refreshClock() {
+        const nowDate = getSchoolDate();
+
         let year = nowDate.getFullYear(),
             month = nowDate.getMonth() + 1,
             day = nowDate.getDate();
-        
+
         month = fixed(month);
         day = fixed(day);
-        
+
         animations.textChange(clockYearElem, () => clockYearElem.textContent == year, () => {
             clockYearElem.textContent = year;
-        }, {
+        }, customTextChangeFrames, {
             duration: 400,
-        }, customTextChangeFrames);
-        
+        });
+
         animations.textChange(clockMonthElem, () => clockMonthElem.textContent == month, () => {
             clockMonthElem.textContent = month;
-        }, {
+        }, customTextChangeFrames, {
             duration: 400,
-        }, customTextChangeFrames);
-        
+        });
+
         animations.textChange(clockDayElem, () => clockDayElem.textContent == day, () => {
             clockDayElem.textContent = day;
-        }, {
+        }, customTextChangeFrames, {
             duration: 400,
-        }, customTextChangeFrames);
-        
+        });
+
         let hour = nowDate.getHours(),
             minute = nowDate.getMinutes(),
             second = nowDate.getSeconds();
-        
+
         hour = fixed(hour);
         minute = fixed(minute);
         second = fixed(second);
-        
+
         animations.textChange(clockHourElem, () => clockHourElem.textContent == hour, () => {
             clockHourElem.textContent = hour;
-        }, {
-            duration: 400,
-        }, customTextChangeFrames);
-        
+        }, customTextChangeFrames, {
+            duration: 300,
+        });
+
         animations.textChange(clockMinuteElem, () => clockMinuteElem.textContent == minute, () => {
             clockMinuteElem.textContent = minute;
-        }, {
+        }, customTextChangeFrames, {
             duration: 300,
-        }, customTextChangeFrames);
-        
+        });
+
         animations.textChange(clockSecondElem, () => clockSecondElem.textContent == second, () => {
             clockSecondElem.textContent = second;
-        }, {
+        }, customTextChangeFrames, {
             duration: 200,
-        }, customTextChangeFrames);
-        
-        function fixed(num){
+        });
+
+        function fixed(num) {
             return ("" + num).padStart(2, "0");
         }
     }

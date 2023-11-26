@@ -4,15 +4,17 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="./css/style.css">
-    <script src="./scripts/date-utils.js"></script>
-    <script src="./scripts/animations.js"></script>
+    <script src="./scripts/utils/date-utils.js"></script>
+    <script src="./scripts/utils/animations.js"></script>
 </head>
 
 <body>
+    <!-- 背景 -->
     <div class="background" id="background_image"></div>
     <!-- <video preload muted autoplay loop class="background" id="background_video"></video> -->
 
-    <div class="trans" id="courses_wrapper">
+    <!-- 课表 -->
+    <div id="courses_wrapper">
         <div class="container" id="courses_container">
             <div id="day"></div>
             <table id="courses">
@@ -30,7 +32,8 @@
         </div>
     </div>
 
-    <div class="container trans" id="container_timer">
+    <!-- 倒计时 -->
+    <div class="container" id="container_timer">
         <div class="container" id="event_block">
             <h1 id="event_name"></h1>
             <div>
@@ -61,12 +64,16 @@
             </div>
         </div>
     </div>
-    
-    <div class="trans container clock">
+
+    <!-- 时钟 日期 -->
+    <div class="container clock">
         <div class="container date_block">
-            <h1 id="clock_year">1453</h1><h2>年</h2>
-            <h1 id="clock_month">05</h1><h2>月</h2>
-            <h1 id="clock_day">29</h1><h2>日</h2>
+            <h1 id="clock_year">1453</h1>
+            <h2>年</h2>
+            <h1 id="clock_month">05</h1>
+            <h2>月</h2>
+            <h1 id="clock_day">29</h1>
+            <h2>日</h2>
         </div>
         <div class="container time_clock">
             <div class="time_clock_block">
@@ -85,11 +92,61 @@
             </div>
         </div>
     </div>
-    
-    <div id="test" style="font-size:80px"></div>
+
+    <!-- 今日热搜 -->
+    <div class="container container_hot_board">
+        <div class="board_title">
+            <img src="images/hot.png">
+            <h1>今日热搜</h1>
+            <h2 id="last_time">上次更新时间</h2>
+        </div>
+        <div class="container board_body">
+            <div class="mark">
+                考试期间
+                <br>
+                热搜榜关闭
+            </div>
+
+            <div class="container card">
+                <div class="image_wrapper">
+                    <div class="index"></div>
+                    <img src="" alt="">
+                </div>
+                <div class="title"></div>
+                <div class="hot"></div>
+            </div>
+            <div class="container card">
+                <div class="image_wrapper">
+                    <div class="index"></div>
+                    <img src="" alt="">
+                </div>
+                <div class="title"></div>
+                <div class="hot"></div>
+            </div>
+            <div class="container card">
+                <div class="image_wrapper">
+                    <div class="index"></div>
+                    <img src="" alt="">
+                </div>
+                <div class="title"></div>
+                <div class="hot"></div>
+            </div>
+            <div class="container card">
+                <div class="image_wrapper">
+                    <div class="index"></div>
+                    <img src="" alt="">
+                </div>
+                <div class="title"></div>
+                <div class="hot"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="test"></div>
 </body>
 <script src="./scripts/picture-background.js"></script>
 <!-- <script src="./scripts/video-background.js"></script> -->
+<script src="./scripts/hot-board.js"></script>
 <script src="./scripts/courses.js"></script>
 <script src="./scripts/clock.js"></script>
 <script src="./scripts/event-timer.js"></script>

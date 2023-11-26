@@ -4,11 +4,22 @@ class TimerEvent {
     hourStart = 24;
     dayStart = 10;
 
-    constructor(order, name, startDate, endDate, discription = "") {
+    /**
+     * 
+     * @param {Number} order 事件顺序 越小越优先
+     * @param {String} name 事件名称
+     * @param {String, Date} startTime 开始日期
+     * @param {String, Date} endTime 结束日期
+     * @param {String} discription 事件描述
+     * @param {String} shadowColor 事件名称阴影颜色
+     */
+    constructor(order, name, startDate, endDate, discription = "", shadowColor = "#444") {
         this.order = order;
         this.name = name;
         this.discription = discription;
+        this.shadowColor = shadowColor;
 
+        this.startDate = null;
         this.endDate = toDate(endDate);
 
         if (startDate != null) {
@@ -37,19 +48,20 @@ const timerEvents = [];
 function addEvents(...events) {
     events.forEach(e => timerEvents.push(e));
 
-    timerEvents.sort(e => e.order);
+    timerEvents.sort((e1, e2) => e1.order - e2.order);
 }
 
 function initTimer() {
-    const boxSize = 250, marigin = "10px";
-
-    const emptyEvent = new TimerEvent(9999999999, "", null, "00:00");
+    const emptyEvent = new TimerEvent(Infinity, "", null, "00:00");
 
     const eventElem = document.getElementById("event_name"),
         dayBox = document.getElementById("day_block"),
         hourBox = document.getElementById("hour_block"),
         minuteBox = document.getElementById("minute_block"),
         secondBox = document.getElementById("second_block");
+
+    const style = getComputedStyle(dayBox);
+    const boxSize = parseInt(style.height.replace("px", ""));
 
     const eventEndTimeElem = document.getElementById("event_end_time"),
         eventDiscriptionElem = document.getElementById("event_discription");
@@ -67,6 +79,13 @@ function initTimer() {
     var currentEvent = emptyEvent;
     var lastEvent = null;
 
+    const minCutFract = 0.05;
+
+    var lastDayFract = -1,
+        lastHourFract = -1,
+        lastMinuteFract = -1,
+        lastSecondFract = -1;
+
     setInterval(refreshTimer, 500);
 
     function getEvent(date) {
@@ -74,29 +93,26 @@ function initTimer() {
     }
 
     function refreshTimer() {
-        const nowDate = new Date();
+        const nowDate = getSchoolDate();
 
-        if (!currentEvent || !currentEvent.shouldTiming(nowDate)) {
-            currentEvent = getEvent(nowDate);
-            
-            if(lastEvent !== currentEvent){
-                if(!currentEvent){
-                    setInfo("The End", "", "");
-                }else{
-                    setInfo(currentEvent.name, 
-                        "End: " + dateToString(currentEvent.endDate), 
-                        currentEvent.discription);
-                }
-                
-                lastEvent = currentEvent;
+        currentEvent = getEvent(nowDate);
+        if (lastEvent !== currentEvent) {
+            if (!currentEvent) {
+                setInfo("The End", "", "", "");
+            } else {
+                setInfo(currentEvent.name,
+                    "End: " + dateToString(currentEvent.endDate),
+                    currentEvent.discription, currentEvent.shadowColor);
             }
+
+            lastEvent = currentEvent;
         }
-        
-        if(!currentEvent){
+
+        if (!currentEvent) {
             setTime(0, 0, 0, 0, emptyEvent);
             return;
         }
-        
+
         const leftMiniSeconds = currentEvent.endDate - nowDate;
 
         let seconds = leftMiniSeconds / 1000,
@@ -109,32 +125,34 @@ function initTimer() {
         hours %= 24;
 
         setTime(days, hours, minutes, seconds, currentEvent);
-        
-        function setInfo(name, endTimeText, discription){
+
+        function setInfo(name, endTimeText, discription, shadowColor) {
             const customFrames = {
                 fontSize: ["", "0px"],
                 transform: ["", ""],
             }
-            
-            animations.textChange(eventElem, 
-                () => eventElem.textContent == name, 
-                () => eventElem.textContent = name, {
+
+            eventElem.style.setProperty("--text-shadow-color", shadowColor);
+
+            animations.textChange(eventElem,
+                () => eventElem.textContent == name,
+                () => eventElem.textContent = name, customFrames, {
                 duration: 1500,
-            }, customFrames);
-                        
-            animations.textChange(eventEndTimeElem, 
-                () => eventEndTimeElem.textContent == endTimeText, 
-                () => eventEndTimeElem.textContent = endTimeText, {
+            });
+
+            animations.textChange(eventEndTimeElem,
+                () => eventEndTimeElem.textContent == endTimeText,
+                () => eventEndTimeElem.textContent = endTimeText, customFrames, {
                 duration: 500,
                 delay: 2000,
-            }, customFrames);
-            
-            animations.textChange(eventDiscriptionElem, 
-                () => eventDiscriptionElem.textContent == discription, 
-                () => eventDiscriptionElem.textContent = discription, {
-                duration: 500,
-                delay: 2000,
-            }, customFrames);
+            });
+
+            animations.textChange(eventDiscriptionElem,
+                () => eventDiscriptionElem.textContent == discription,
+                () => eventDiscriptionElem.textContent = discription, customFrames, {
+                duration: 1000,
+                delay: 3000,
+            });
         }
 
         function setTime(days, hours, minutes, seconds, event) {
@@ -153,19 +171,34 @@ function initTimer() {
                 removeMinute = removeHour && displayMinutes == 0,
                 removeSecond = removeMinute && displaySeconds == 0;
 
-            cutbox(dayBox, dayCutBox, days / event.dayStart, removeDay);
-            cutbox(hourBox, hourCutBox, hours / event.hourStart, removeHour);
-            cutbox(minuteBox, minuteCutBox, minutes / event.minuteStart, removeMinute);
-            cutbox(secondBox, secondCutBox, seconds / event.secondStart, removeSecond);
-            
-            function cutbox(block, cutbox, fract, removeBlock) {
+            let dayFract = Math.min(1, days / event.dayStart),
+                hourFract = hours / event.hourStart,
+                minuteFract = minutes / event.minuteStart,
+                secondFract = seconds / event.secondStart;
+            const shouldCutDay = Math.abs(dayFract - lastDayFract) > minCutFract,
+                shouldCutHour = Math.abs(hourFract - lastHourFract) > minCutFract,
+                shouldCutMinute = Math.abs(minuteFract - lastMinuteFract) > minCutFract,
+                shouldCutSecond = Math.abs(secondFract - lastSecondFract) > minCutFract;
+
+            cutbox(dayBox, dayCutBox, dayFract, removeDay, shouldCutDay);
+            cutbox(hourBox, hourCutBox, hourFract, removeHour, shouldCutHour);
+            cutbox(minuteBox, minuteCutBox, minuteFract, removeMinute, shouldCutMinute);
+            cutbox(secondBox, secondCutBox, secondFract, removeSecond, shouldCutSecond);
+
+            if (shouldCutDay) lastDayFract = dayFract;
+            if (shouldCutHour) lastHourFract = hourFract;
+            if (shouldCutMinute) lastMinuteFract = minuteFract;
+            if (shouldCutSecond) lastSecondFract = secondFract;
+
+            function cutbox(block, cutbox, fract, removeBlock, shouldCut) {
                 if (removeBlock) {
-                    block.style.width = block.style.height = "0px";
-                    block.style.margin = "0px";
+                    block.style.width = "0px";
                 } else {
-                    block.style.width = block.style.height = boxSize + "px";
-                    block.style.margin = marigin;
-                    cutbox.style.top = boxSize * (1 - fract) + "px";
+                    block.style.width = boxSize + "px";
+
+                    if (shouldCut) {
+                        cutbox.style.top = Math.floor(boxSize * (1 - fract) * 100) / 100 + "px";
+                    }
                 }
             }
         }

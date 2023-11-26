@@ -24,9 +24,40 @@ const colorMap = {
     跑: "#f2a65e",
     自: "#c10ce9",
 
+    欢: "red",
+    迎: "orange",
+    各: "yellow",
+    位: "green",
+    家: "skyblue",
+    长: "purple",
+
     测: "#996699",
 };
 
+const coursesFullName = {
+    语: "语文",
+    数: "数学",
+    英: "英语",
+
+    物: "物理",
+    化: "化学",
+    生: "生物",
+    政: "政治",
+
+    听: "听力",
+
+    体: "体育",
+    心: "心理",
+    信: "信息与技术",
+    通: "通用技术",
+    劳: "劳动",
+
+    班: "班会",
+    跑: "跑操",
+    自: "自习",
+
+    测: "周测",
+}
 
 class DaySchedule {
     headArray;
@@ -38,42 +69,6 @@ class DaySchedule {
      */
     constructor(dayName) {
         this.dayName = dayName;
-    }
-}
-
-class TimeSchedule {
-    constructor(startTime, endTime) {
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-
-    getStartDate() {
-        return toDate(this.startTime);
-    }
-
-    getEndDate() {
-        return toDate(this.endTime);
-    }
-
-    setTime(newStartTIme, newEndTime) {
-        this.startTime = newStartTIme;
-        this.endTime = newEndTime;
-    }
-
-    static timeArrayToTimeScheduleArray(array, timeSplit = "-") {
-        const result = [];
-
-        for (let i = 0; i < array.length; i++) {
-            const time = array[i];
-
-            const splitArray = time.split(timeSplit);
-            const startTime = splitArray[0],
-                endTime = splitArray[1];
-
-            result.push(new TimeSchedule(startTime, endTime));
-        }
-
-        return result;
     }
 }
 
@@ -102,7 +97,7 @@ function initCourses() {
     init();
 
     function init() {
-        today = courceDay = new Date().getDay();
+        today = courceDay = getSchoolDate().getDay();
 
         dayElem.addEventListener("mousedown", event => {
             if (event.button == 0) {
@@ -128,7 +123,7 @@ function initCourses() {
 
         // 新的一天
         setInterval(() => {
-            let nowDate = new Date();
+            let nowDate = getSchoolDate();
             if (today != nowDate.getDay()) {
                 today = nowDate.getDay();
                 setCourseDay(today);
@@ -166,7 +161,7 @@ function initCourses() {
     function refreshHead() {
         const children = headRow.children;
 
-        const nowDate = new Date();
+        const nowDate = getSchoolDate();
 
         const { headArray, headSchedule } = daySchedule;
         for (let i = 0, len = headArray.length; i < len; i++) {
@@ -192,15 +187,15 @@ function initCourses() {
     }
 
     function rebuildTable() {
-        const { headArray, courseArray} = daySchedule;
-        
+        const { headArray, courseArray } = daySchedule;
+
         limmitChildren(headRow, headArray.length, (e, i) => {
             const th = document.createElement("th");
             e.appendChild(th);
         }, (e, i, child) => {
             e.removeChild(child);
         });
-        
+
         limmitChildren(courseRow, courseArray.length, (e, i) => {
             const td = document.createElement("td");
             e.appendChild(td);
@@ -208,17 +203,17 @@ function initCourses() {
             e.removeChild(child);
         });
 
-        function limmitChildren(element, limmitLength, supplyHandler, overHandler){
+        function limmitChildren(element, limmitLength, supplyHandler, overHandler) {
             const children = Array.from(element.children);
             const childrenLength = children.length;
 
             if (childrenLength == limmitLength) {
                 return;
             }
-    
+
             let start, end;
             let handler;
-    
+
             if (childrenLength < limmitLength) {
                 start = childrenLength;
                 end = limmitLength;
@@ -228,11 +223,10 @@ function initCourses() {
                 end = childrenLength;
                 handler = (element, i) => {
                     const child = children[i];
-                    console.log(i)
                     overHandler(element, i, child);
                 };
             }
-    
+
             for (let i = start; i < end; i++) {
                 handler(element, i);
             }
@@ -262,27 +256,24 @@ function initCourses() {
             let course = courseArray[i],
                 textColor = "#a2a2a2",
                 shadowColor = null;
-                
-            if (!isSelfStudy(course)) {
-                if (course.includes("*")) {
-                    course = course.replace("*", "");
-                }
 
+            if (!isSelfStudy(course)) {
                 textColor = "white";
                 shadowColor = colorMap[course[0]];
+            } else if (course.includes("*")) {
+                course = course.replace("*", "");
             }
-            
-            setTimeout(() => {
-                animations.textChange(e, () => oldCourse == course, () => {
-                    e.textContent = course;
-                    e.style.color = textColor;
-                    e.style.textShadow = shadowColor ?
-                        "0px 0px 10px " + shadowColor + "," +
-                        "3px 3px 3px " + shadowColor : "";
-                }, {
-                    duration: 500,
-                });
-            }, 150 * i);
+
+            animations.textChange(e, () => oldCourse == course, () => {
+                e.textContent = course;
+                e.style.color = textColor;
+                e.style.textShadow = shadowColor ?
+                    "0px 0px 10px " + shadowColor + "," +
+                    "3px 3px 3px " + shadowColor : "";
+            }, {}, {
+                duration: 500,
+                delay: i * 100,
+            });
         }
     }
 
@@ -298,7 +289,7 @@ function initCourses() {
 
         offsetDay = (courceDay == 0 ? max + 1 : courceDay) - today;
         offsetDay = offsetDay > 7 ? 0 : offsetDay;
-        
+
         refresh();
     }
 
@@ -313,7 +304,7 @@ function initCourses() {
     }
 
     function getCourseWeek() {
-        const nowDate = new Date();
+        const nowDate = getSchoolDate();
         const day = (nowDate - weekStartDate) / 1000 / 60 / 60 / 24;
         return Math.floor((day + offsetDay) / 7) + 1;
     }
