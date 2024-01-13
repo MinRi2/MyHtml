@@ -1,12 +1,11 @@
 class TimeSchedule {
     /**
      * 
-     * @param {String} startTime 
-     * @param {String} endTime 
+     * @param {String, Date} startTime 
+     * @param {String, Date} endTime 
      */
     constructor(startTime, endTime) {
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.setTime(startTime, endTime);
     }
 
     setTime(newStartTime, newEndTime) {
@@ -36,7 +35,7 @@ class TimeSchedule {
 
     /**
      * 
-     * @param {Array} array 
+     * @param {Array<String>} array 
      * @param {String} timeSplit 
      * @returns {Array}
      */
@@ -53,7 +52,17 @@ class TimeSchedule {
         return result;
     }
 
+    /**
+     * 将字符串形式的 timeSchedule (Date timeSplit Date) 转为 timeSchedule 
+     * @param {String, TimeSchedule} time 
+     * @param {String} timeSplit (*-)
+     * @returns 
+     */
     static toTimeSchedule(time, timeSplit = "-") {
+        if (time instanceof TimeSchedule) {
+            return time;
+        }
+
         const splitArray = time.split(timeSplit);
         const startTime = splitArray[0],
             endTime = splitArray[1];
@@ -72,7 +81,7 @@ function toDate(arg) {
         return stringToDate(arg);
     }
 
-    throw new Error(arg + " can't cast to Date");
+    throw new Error(`${arg} cannot be casted to Date`);
 
     /** 将字符串转换成日期
      * @description: 字符串可分成日期和时间两部分
@@ -163,11 +172,18 @@ function toDate(arg) {
     }
 }
 
-function withinTime(startDate, endDate, nowDate = new Date()) {
+/**
+ * 返回一个时间是否在某一时间区间内
+ * @param {*} startDate 起始时间
+ * @param {*} endDate 结束时间
+ * @param {*} date 默认当前时间
+ * @returns {Boolean}
+ */
+function withinTime(startDate, endDate, date = new Date()) {
     startDate = toDate(startDate);
     endDate = toDate(endDate);
 
-    return startDate < nowDate && nowDate < endDate;
+    return startDate < date && date < endDate;
 }
 
 function checkIntervalOrOver(date, func, overFunc, timeInterval = 1000) {
@@ -188,17 +204,67 @@ function checkIntervalOrOver(date, func, overFunc, timeInterval = 1000) {
 }
 
 
-function dateToString(date) {
-    return date.getFullYear() + "/" + fixed(date.getMonth() + 1) + "/" + fixed(date.getDate()) + " " +
-        fixed(date.getHours()) + ":" + fixed(date.getMinutes());
+function dateToString(date, options = {}) {
+    const defaultOpt = {
+        year: true, month: true, day: true, hour: true, minute: true,
+    };
+
+    const { year, month, day, hour, minute } = Object.assign(defaultOpt, options);
+
+    let result = "";
+
+    if (year) {
+        result += date.getFullYear();
+
+        if (month) result += "/";
+    }
+
+    if (month) {
+        result += fixed(date.getMonth() + 1);
+
+        if (day) result += "/";
+    }
+
+    if (day) {
+        result += fixed(date.getDate());
+
+        if (hour | minute) result += " ";
+    }
+
+    if (hour) {
+        result += fixed(date.getHours());
+
+        if (minute) result += ":";
+    }
+
+    if (minute) {
+        result += fixed(date.getMinutes())
+    }
+
+    return result;
 
     function fixed(num) {
         return ("" + num).padStart(2, "0");
     }
 }
 
-const dateOffset = 18 * 1000;
+/**
+ * 获取经偏移校准的时间
+ * @param {Number} offset 偏移时间(ms) 默认 vars.js ${dateOffset}
+ * @returns {Date}
+ */
 function getSchoolDate(offset = dateOffset) {
     const nowDate = new Date();
     return new Date(+nowDate + offset);
+}
+
+/**
+ * 获取当前的周数 起始时间在 vars.js ${weekStartDate} 设置
+ * @param {Number} offset 偏移时间(day) 默认0
+ * @returns {Number}
+ */
+function getSchoolWeek(offset = 0) {
+    const nowDate = getSchoolDate();
+    const day = (nowDate - weekStartDate) / 1000 / 60 / 60 / 24;
+    return Math.floor((day + offset) / 7) + 1;
 }

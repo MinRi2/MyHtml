@@ -1,9 +1,14 @@
-# Dynamic WallPaper
-This is a dynamic wallpaper for class!
-
-You can use ```WallPaper``` or other wallpaper engine to start this wallpaper.
-
-# How to use
-~~Frankly, there isn't a perfect code in my project.~~
-
-- I put most of the configurations in the script ```control.js```, where you could change some configurations such as courses, courses schedule and timer events.
+# 动态壁纸
+- 一个实用、~~易用的~~，为学生设计的动态壁纸（HTML+CSS+Javascript）
+# 特色功能
+1. 课程表
+2. 课程进度条
+3. 当前时间
+4. 事件倒计时
+5. 热搜榜
+6. 动态壁纸
+# 如何应用
+- 使用一些动态壁纸的引擎（像```WallPaper```）来安装
+# 如何使用
+- 我把大部分可供修改的配置（如课程表）放在了 ```scripts/control.js``` 文件当中，你可以通过文本编辑器进行修改
+- 一些相关的变量（如第一周的时间）放在了 ```scripts/vars.js``` 文件当中

@@ -1,6 +1,7 @@
 initHotBoard();
 
 function initHotBoard() {
+    // const hotBoardApi = "https://tenapi.cn/v2/baiduhot";
     const hotBoardApi = "https://api.vvhan.com/api/hotlist?type=baiduRD";
     // const hotBoardApi = "https://top.baidu.com/api/board?platform=wise&tab=realtime";
 
@@ -12,23 +13,18 @@ function initHotBoard() {
 
     const groupSize = cardBoard.querySelectorAll(".card").length;
     const maxGroupIndex = 3;
+    const totalCount = (maxGroupIndex + 1) * groupSize;
 
     const checkDisableInterval = 10 * 1000; // 10s
     const disableBoardDates = TimeSchedule.timeArrayToTimeScheduleArray([
-        "11/9 7:40-11/9 10:30",
-        "11/9 10:35-11/9 12:00",
-        "11/9 14:35-11/9 17:00",
-
-        "11/10 9:05-11/10 10:30",
-        "11/10 10:35-11/10 12:00",
-        "11/10 14:35-11/10 17:00",
-    ]);
+        "2024/1/11 19:30-2024/1/11 22:00"
+    ]); // $
 
     const boardMark = document.querySelector(".board_body .mark");
 
     var data = null;
     var groupIndex = 0;
-    var lastUpdateTime = "";
+    var lastUpdateTimeText = "";
 
     refreshCardBoard();
     setInterval(refreshCardBoard, refreshTime);
@@ -87,14 +83,19 @@ function initHotBoard() {
             const json = await response.json();
 
             data = json.data;
-            lastUpdateTime = json.update_time;
+            lastUpdateTimeText = json.update_time;
+
+            joke();
+            // dateToString(new Date(), {
+            //     year: false, month: false, day: false
+            // });
         } catch (e) {
             return;
         }
 
         animations.textChange(lastTimeElem,
-            () => lastTimeElem.textContent == lastUpdateTime,
-            () => lastTimeElem.textContent = lastUpdateTime);
+            () => lastTimeElem.textContent == lastUpdateTimeText,
+            () => lastTimeElem.textContent = lastUpdateTimeText);
     }
 
     function checkDisable() {
@@ -123,4 +124,55 @@ function initHotBoard() {
             c.style.filter = filter;
         });
     }
+
+    function joke() {
+        if (data.length > totalCount) {
+            data.splice(totalCount - 1);
+        }
+
+        data.push(getJokeData());
+    }
+
+    function getJokeData() {
+        const startWeek = 20;
+        const startPage = 59;
+        const setpPage = 2;
+
+        const thisWeekStartPage = startPage + (getSchoolWeek() - startWeek) * setpPage,
+            thisWeekEndPage = thisWeekStartPage + setpPage - 1;
+
+        // $
+        const jokes = [
+            `今天你完成笑读文言文第${thisWeekStartPage}~${thisWeekEndPage}篇了吗？`,
+            `震惊！一高中生竟没有完成笑读文言文第${thisWeekStartPage}~${thisWeekEndPage}篇！`,
+        ];
+
+        let text = jokes[Math.floor(Math.random() * jokes.length)];
+
+        return {
+            index: -1,
+            pic: "https://fyb-1.cdn.bcebos.com/fyb/de6163834f53ca92c1273fff98ac9078.jpeg",
+            title: text,
+            hot: "∞",
+        };
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

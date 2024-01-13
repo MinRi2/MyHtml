@@ -1,14 +1,14 @@
-const clockYearElem = document.querySelector("#clock_year"),
-    clockMonthElem = document.querySelector("#clock_month"),
-    clockDayElem = document.querySelector("#clock_day");
-
-const clockHourElem = document.querySelector("#clock_hour"),
-    clockMinuteElem = document.querySelector("#clock_minute"),
-    clockSecondElem = document.querySelector("#clock_second");
-
 initClock();
 
 function initClock() {
+    const clockYearElem = document.querySelector("#clock_year"),
+        clockMonthElem = document.querySelector("#clock_month"),
+        clockDayElem = document.querySelector("#clock_day");
+
+    const clockHourElem = document.querySelector("#clock_hour"),
+        clockMinuteElem = document.querySelector("#clock_minute"),
+        clockSecondElem = document.querySelector("#clock_second");
+
     setInterval(refreshClock, 500);
 
     const customTextChangeFrames = {

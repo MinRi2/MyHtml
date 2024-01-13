@@ -1,74 +1,169 @@
-const nextDayTime = "21:15:00"; // 课表刷新时间
-const weekStartDate = new Date(2023, 7, 28); // 开学第一周第一天的时间
-
-// 课程阴影颜色
-const colorMap = {
-    语: "#ff0000",
-    数: "#00c2ff",
-    英: "#ff9900",
-
-    物: "#c10ce9",
-    化: "#00c2ff",
-    生: "#8fde5d",
-    政: "#cd5c5c",
-
-    听: "#cd5c5c",
-
-    体: "#ff9999",
-    心: "#ff9999",
-    信: "#ff9999",
-    通: "#ff9999",
-    劳: "#ff9999",
-
-    班: "#f2a65e",
-    跑: "#f2a65e",
-    自: "#c10ce9",
-
-    欢: "red",
-    迎: "orange",
-    各: "yellow",
-    位: "green",
-    家: "skyblue",
-    长: "purple",
-
-    测: "#996699",
-};
-
-const coursesFullName = {
-    语: "语文",
-    数: "数学",
-    英: "英语",
-
-    物: "物理",
-    化: "化学",
-    生: "生物",
-    政: "政治",
-
-    听: "听力",
-
-    体: "体育",
-    心: "心理",
-    信: "信息与技术",
-    通: "通用技术",
-    劳: "劳动",
-
-    班: "班会",
-    跑: "跑操",
-    自: "自习",
-
-    测: "周测",
-}
-
 class DaySchedule {
-    headArray;
-    headSchedule;
-    courseArray;
+    courseArray = [];
 
     /**
      * @param {string} dayName
      */
     constructor(dayName) {
         this.dayName = dayName;
+    }
+
+    /**
+     * 设置课程名称
+     * @param {String} headName 课头名称
+     * @param {String} newCourseName 新课程名称
+     */
+    setCourseName(headName, newCourseName) {
+        const course = this.getCourse(headName);
+        course.courseName = newCourseName;
+    }
+
+    /**
+     * 设置课程优先级
+     * @param {String} headName 课头名称 
+     * @param {Number} order 顺序 越小优先级越大
+     */
+    setOrder(headName, order) {
+        const course = this.getCourse(headName);
+        course.order = order;
+        this.sortArray();
+    }
+
+    /**
+     * 根据课头获取课程的名称
+     * @param {String} headName 课头名称
+     * @returns {String}
+     */
+    getCourseName(headName) {
+        return this.getCourse(headName).courseName;
+    }
+
+    /**
+     * 根据课头直接获取课程时间安排
+     * @param {String} headName 课头名称
+     * @returns {TimeSchedule}
+     */
+    getSchedule(headName) {
+        return this.getCourse(headName).schedule;
+    }
+
+    /**
+     * 根据课头获取课程
+     * @param {String} headName 课头名称
+     * @returns {Course}
+     */
+    getCourse(headName) {
+        const course = this.courseArray.find(c => c.headName == headName);
+
+        if (course == null) {
+            console.error(`Cannot find course by headName: ${headName}`);
+            return null;
+        }
+
+        return course;
+    }
+
+    /**
+     * 添加课程
+     * @param {String} headName 课头名称
+     * @param {String} courseName 课程名称
+     * @param {String, TimeSchedule} schedule 时间安排 
+     */
+    addCourse(headName, courseName, schedule) {
+        const course = new Course(headName, courseName, schedule);
+
+        this.courseArray.push(course);
+        this.sortArray();
+    }
+
+    /**
+     * 根据课头删除课程
+     * @param  {...String} headNameArray 课头名称数组
+     */
+    deleteCourses(...headNameArray) {
+        for (let i = 0, len = headNameArray.length; i < len; i++) {
+            const headName = headNameArray[i];
+
+            const index = this.courseArray.findIndex(c => c.headName == headName);
+            this.courseArray.splice(index, 1);
+        }
+    }
+
+    /**
+     * (Private) 排序
+     */
+    sortArray() {
+        this.courseArray.sort((c1, c2) => {
+            if (c1.order == c2.order) {
+                const d1 = c1.schedule.getStartDate(),
+                    d2 = c2.schedule.getStartDate();
+                return d1 - d2;
+            } else {
+                return c1.order - c2.order;
+            }
+        });
+    }
+
+    /**
+     * 
+     * @param {Array<String>, Array<String>, Array<String, TimeSchedule>} param0 
+     */
+    setSchedule({ headArray, courseArray, scheduleArray }) {
+        const length = headArray.length;
+
+        if (length != courseArray.length || length != scheduleArray.length) {
+            throw new Error(`
+            The length of arrays is not the same! Check your array's length. More infomation: 
+            headArray's length: ${headArray.length}
+            scheduleArray's length:${scheduleArray.length}
+            `);
+        }
+
+        for (let i = 0; i < length; i++) {
+            const headName = headArray[i],
+                courseName = courseArray[i],
+                schedule = scheduleArray[i];
+
+            const course = new Course(headName, courseName, schedule);
+
+            this.courseArray.push(course);
+        }
+
+        this.sortArray();
+    }
+}
+
+class Course {
+    order = 0;
+
+    /**
+     * 
+     * @param {String} headName 课头名称 
+     * @param {String} courseName 课程名称
+     * @param {String, TimeSchedule} schedule 时间安排
+     */
+    constructor(headName, courseName, schedule) {
+        this.headName = headName;
+        this.courseName = courseName;
+        this.schedule = TimeSchedule.toTimeSchedule(schedule);
+    }
+
+    /**
+     * 可传递数组或参数
+     * @returns {Course}
+     */
+    static toCourse() {
+        let array = arguments[0];
+        if (!array instanceof Array) {
+            if (arguments.length != 3) {
+                throw new Error("The number of arguments is wrong. Check your input arguments!(3 args are needed)");
+            }
+
+            array = arguments;
+        }
+
+        const [headName, courseName, schedule] = array;
+        return new Course(headName, courseName, schedule);
     }
 }
 
@@ -150,7 +245,7 @@ function initCourses() {
             duration: 200,
         });
 
-        let weekText = "第" + "<br><span>" + getCourseWeek() + "</span><br>" + "周";
+        let weekText = "第" + "<br><span>" + getSchoolWeek(offsetDay) + "</span><br>" + "周";
         animations.textChange(weekElem,
             () => weekElem.innerHTML == weekText,
             () => weekElem.innerHTML = weekText, {
@@ -163,17 +258,19 @@ function initCourses() {
 
         const nowDate = getSchoolDate();
 
-        const { headArray, headSchedule } = daySchedule;
-        for (let i = 0, len = headArray.length; i < len; i++) {
+        const { courseArray } = daySchedule;
+
+        for (let i = 0, len = courseArray.length; i < len; i++) {
             const child = children[i];
-            const obj = headSchedule[i];
+
+            const { schedule } = courseArray[i];
 
             let color = "white";
             if (offsetDay < 0) {
                 color = "#a2a2a2";
             } else if (offsetDay == 0) {
-                const startDate = obj.getStartDate(),
-                    endDate = obj.getEndDate();
+                const startDate = schedule.getStartDate(),
+                    endDate = schedule.getEndDate();
 
                 if (nowDate > endDate) {
                     color = "#a2a2a2";
@@ -187,9 +284,9 @@ function initCourses() {
     }
 
     function rebuildTable() {
-        const { headArray, courseArray } = daySchedule;
+        const { courseArray } = daySchedule;
 
-        limmitChildren(headRow, headArray.length, (e, i) => {
+        limmitChildren(headRow, courseArray.length, (e, i) => {
             const th = document.createElement("th");
             e.appendChild(th);
         }, (e, i, child) => {
@@ -236,12 +333,12 @@ function initCourses() {
     function rebuildHeadRow() {
         const children = headRow.children;
 
-        const { headArray } = daySchedule;
-        for (let i = 0; i < headArray.length; i++) {
-            const head = headArray[i];
+        const { courseArray } = daySchedule;
+        for (let i = 0; i < courseArray.length; i++) {
+            const { headName } = courseArray[i];
             const e = children[i];
 
-            e.textContent = head;
+            e.textContent = headName;
         }
     }
 
@@ -251,21 +348,19 @@ function initCourses() {
         const { courseArray } = daySchedule;
         for (let i = 0; i < courseArray.length; i++) {
             const e = children[i];
-            const oldCourse = e.textContent;
 
-            let course = courseArray[i],
+            let { courseName } = courseArray[i],
                 textColor = "#a2a2a2",
                 shadowColor = null;
-
-            if (!isSelfStudy(course)) {
+            if (!isSelfStudy(courseName)) {
                 textColor = "white";
-                shadowColor = colorMap[course[0]];
-            } else if (course.includes("*")) {
-                course = course.replace("*", "");
+                shadowColor = coursesColorMap[courseName[0]];
+            } else if (courseName.includes("*")) {
+                courseName = courseName.replace("*", "");
             }
 
-            animations.textChange(e, () => oldCourse == course, () => {
-                e.textContent = course;
+            animations.textChange(e, () => false, () => {
+                e.textContent = courseName;
                 e.style.color = textColor;
                 e.style.textShadow = shadowColor ?
                     "0px 0px 10px " + shadowColor + "," +
@@ -297,15 +392,5 @@ function initCourses() {
         if (cource[0] == "*") {
             return true;
         }
-
-        if (getCourseWeek() % 2 == 0) { // 双周
-            return cource == "心";
-        }
-    }
-
-    function getCourseWeek() {
-        const nowDate = getSchoolDate();
-        const day = (nowDate - weekStartDate) / 1000 / 60 / 60 / 24;
-        return Math.floor((day + offsetDay) / 7) + 1;
     }
 }

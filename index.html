@@ -4,8 +4,12 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="./css/style.css">
+    <script src="./scripts/vars.js"></script>
+
     <script src="./scripts/utils/date-utils.js"></script>
     <script src="./scripts/utils/animations.js"></script>
+    <script src="./scripts/utils/chroma.js"></script>
+    <script src="./scripts/utils/fetch-jsonp.js"></script>
 </head>
 
 <body>
@@ -65,6 +69,15 @@
         </div>
     </div>
 
+    <!-- 课条 -->
+    <div class="container container_courses_bar">
+        <div class="bar_cutbox"></div>
+        <div class="bar">
+            <h1 id="bar_name"></h1>
+            <h2 id="time"></h2>
+        </div>
+    </div>
+
     <!-- 时钟 日期 -->
     <div class="container clock">
         <div class="container date_block">
@@ -104,7 +117,7 @@
             <div class="mark">
                 考试期间
                 <br>
-                热搜榜关闭
+                热搜榜暂闭
             </div>
 
             <div class="container card">
@@ -150,6 +163,7 @@
 <script src="./scripts/courses.js"></script>
 <script src="./scripts/clock.js"></script>
 <script src="./scripts/event-timer.js"></script>
+<script src="./scripts/courses-bar.js"></script>
 <script src="./scripts/control.js"></script>
 
 </html>
