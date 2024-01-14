@@ -26,7 +26,7 @@ class DaySchedule {
     setOrder(headName, order) {
         const course = this.getCourse(headName);
         course.order = order;
-        this.sortArray();
+        this.#sortArray();
     }
 
     /**
@@ -56,7 +56,7 @@ class DaySchedule {
         const course = this.courseArray.find(c => c.headName == headName);
 
         if (course == null) {
-            console.error(`Cannot find course by headName: ${headName}`);
+            console.error(`${this.dayName} don't have a course whose headName is: ${headName}`);
             return null;
         }
 
@@ -73,7 +73,7 @@ class DaySchedule {
         const course = new Course(headName, courseName, schedule);
 
         this.courseArray.push(course);
-        this.sortArray();
+        this.#sortArray();
     }
 
     /**
@@ -92,7 +92,7 @@ class DaySchedule {
     /**
      * (Private) 排序
      */
-    sortArray() {
+    #sortArray() {
         this.courseArray.sort((c1, c2) => {
             if (c1.order == c2.order) {
                 const d1 = c1.schedule.getStartDate(),
@@ -129,7 +129,7 @@ class DaySchedule {
             this.courseArray.push(course);
         }
 
-        this.sortArray();
+        this.#sortArray();
     }
 }
 
@@ -234,9 +234,8 @@ function initCourses() {
     function refresh() {
         daySchedule = daySchedules[courceDay];
 
-        rebuildTable();
-        rebuildHeadRow();
-        rebuildCourseRow();
+        limitRow();
+        rebuildRow();
 
         let dayText = daySchedule.dayName;
         animations.textChange(dayElem,
@@ -283,74 +282,72 @@ function initCourses() {
         }
     }
 
-    function rebuildTable() {
+    function limitRow() {
+        const headRowChildren = Array.from(headRow.children),
+            courseRowChildren = Array.from(courseRow.children);
+
+        const headLength = headRowChildren.length,
+            courseLength = courseRowChildren.length;
+
+        if (headLength != courseLength) {
+            throw new Error(`The one-to-one relation between headRow and courseRow is broken. More infomation:
+            headRow's length: ${headLength}
+            courseRow's length: ${courseLength}`);
+        }
+
         const { courseArray } = daySchedule;
+        const limitLength = courseArray.length;
 
-        limmitChildren(headRow, courseArray.length, (e, i) => {
-            const th = document.createElement("th");
-            e.appendChild(th);
-        }, (e, i, child) => {
-            e.removeChild(child);
-        });
+        const childrenLength = headLength;
+        if (childrenLength == limitLength) {
+            return;
+        }
 
-        limmitChildren(courseRow, courseArray.length, (e, i) => {
-            const td = document.createElement("td");
-            e.appendChild(td);
-        }, (e, i, child) => {
-            e.removeChild(child);
-        });
+        let start, end;
+        let handler;
 
-        function limmitChildren(element, limmitLength, supplyHandler, overHandler) {
-            const children = Array.from(element.children);
-            const childrenLength = children.length;
+        if (childrenLength < limitLength) {
+            start = childrenLength;
+            end = limitLength;
+            handler = () => {
+                const th = document.createElement("th");
+                headRow.appendChild(th);
 
-            if (childrenLength == limmitLength) {
-                return;
+                const td = document.createElement("td");
+                courseRow.appendChild(td);
             }
-
-            let start, end;
-            let handler;
-
-            if (childrenLength < limmitLength) {
-                start = childrenLength;
-                end = limmitLength;
-                handler = supplyHandler;
-            } else {
-                start = limmitLength;
-                end = childrenLength;
-                handler = (element, i) => {
-                    const child = children[i];
-                    overHandler(element, i, child);
-                };
+        } else {
+            start = limitLength;
+            end = childrenLength;
+            handler = (headChild, courseChild) => {
+                headRow.removeChild(headChild);
+                courseRow.removeChild(courseChild);
             }
+        }
 
-            for (let i = start; i < end; i++) {
-                handler(element, i);
-            }
+        for (let i = start; i < end; i++) {
+            const headChild = headRowChildren[i],
+                courseChild = courseRowChildren[i];
+            handler(headChild, courseChild);
         }
     }
 
-    function rebuildHeadRow() {
-        const children = headRow.children;
+    function rebuildRow() {
+        const headRowChildren = Array.from(headRow.children),
+            courseRowChildren = Array.from(courseRow.children);
 
         const { courseArray } = daySchedule;
         for (let i = 0; i < courseArray.length; i++) {
-            const { headName } = courseArray[i];
-            const e = children[i];
+            const { headName, courseName } = courseArray[i];
+            const headChild = headRowChildren[i],
+                courseChild = courseRowChildren[i];
 
-            e.textContent = headName;
-        }
-    }
+            //#region 重构课头行
+            headChild.textContent = headName;
+            //#endregion
 
-    function rebuildCourseRow() {
-        const children = courseRow.children;
-
-        const { courseArray } = daySchedule;
-        for (let i = 0; i < courseArray.length; i++) {
-            const e = children[i];
-
-            let { courseName } = courseArray[i],
-                textColor = "#a2a2a2",
+            //#region 重构课程行
+            let textColor = "#a2a2a2",
                 shadowColor = null;
             if (!isSelfStudy(courseName)) {
                 textColor = "white";
@@ -359,16 +356,17 @@ function initCourses() {
                 courseName = courseName.replace("*", "");
             }
 
-            animations.textChange(e, () => false, () => {
-                e.textContent = courseName;
-                e.style.color = textColor;
-                e.style.textShadow = shadowColor ?
+            animations.textChange(courseChild, () => false, () => {
+                courseChild.textContent = courseName;
+                courseChild.style.color = textColor;
+                courseChild.style.textShadow = shadowColor ?
                     "0px 0px 10px " + shadowColor + "," +
                     "3px 3px 3px " + shadowColor : "";
             }, {}, {
                 duration: 500,
                 delay: i * 100,
             });
+            //#endregion
         }
     }
 

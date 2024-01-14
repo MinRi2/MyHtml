@@ -148,7 +148,7 @@ function initDynamicPaper() {
     setTimeout(() => {
         setEvents();
         setBarSchedules();
-    }, 60 * 1000);
+    }, 0 * 1000);
 
     examSpecial();
 
@@ -243,6 +243,7 @@ function setEvents() {
         addEvents(new TimerEvent(0, coursesFullNameMap[examSubject] + "周测", startTime, endTime, "", coursesColorMap[examSubject]));
     }
 
+    addEvents(new TimerEvent(10, "期末考试", null, "2024/1/24 09:00", "", chroma.random()));
     // addEvents(new TimerEvent(0, "玛凯率", "8:14", "8:20", "描述", "green"));
 }
 

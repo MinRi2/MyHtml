@@ -5,7 +5,6 @@ function initPictureBackground() {
 
     const unsplashApi = "https://api.unsplash.com/";
     const photoApi = unsplashApi + "photos/random/";
-    const key = "cCZHwgz7UVeRccvLqdB2ZshMqqCblxv71nhASlz9V1k"; // $
 
     const defaultImage = "./images/default.jpg";
     const refreshImageTime = 5 * 60 * 1000;
@@ -26,7 +25,7 @@ function initPictureBackground() {
     * Jpg6Kidl-Hk=animals
     */
     const randomUrl = photoApi + "?" + new URLSearchParams({
-        client_id: key,
+        client_id: unsplashKey,
         topics: "6sMVjTLSkeQ,Jpg6Kidl-Hk",
         count: fetchCount
     });

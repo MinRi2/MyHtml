@@ -7,7 +7,7 @@ class BarSchedule extends TimeSchedule {
      * @param {String} name 课条名称
      * @param {String} startTime 起始时间 
      * @param {String} endTime 结束时间
-     * @param {String} color 颜色 留白会随机生成ss
+     * @param {String} color 颜色 留白会随机生成
      */
     constructor(name, startTime, endTime, color = "") {
         super(startTime, endTime);

@@ -3,6 +3,18 @@ const dateOffset = 9 * 1000; // 学校时间偏移
 const nextDayTime = "21:15:00"; // 课表刷新时间
 const weekStartDate = new Date(2023, 7, 28); // $ 开学第一周第一天的时间
 
+/**
+ * 别忘了填上你的密钥！
+ */
+const unsplashKey = ""; // **$
+
+/**
+ * 热搜榜定时关闭 在某些考试会用上
+ */
+const disableBoardDates = TimeSchedule.timeArrayToTimeScheduleArray([
+    "2024/1/11 19:30-2024/1/11 22:00"
+]); // $
+
 // 课程阴影颜色
 const coursesColorMap = {
     "语": "#ff0000",

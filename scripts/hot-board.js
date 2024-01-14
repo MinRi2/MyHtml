@@ -16,9 +16,6 @@ function initHotBoard() {
     const totalCount = (maxGroupIndex + 1) * groupSize;
 
     const checkDisableInterval = 10 * 1000; // 10s
-    const disableBoardDates = TimeSchedule.timeArrayToTimeScheduleArray([
-        "2024/1/11 19:30-2024/1/11 22:00"
-    ]); // $
 
     const boardMark = document.querySelector(".board_body .mark");
 
@@ -143,8 +140,13 @@ function initHotBoard() {
 
         // $
         const jokes = [
-            `今天你完成笑读文言文第${thisWeekStartPage}~${thisWeekEndPage}篇了吗？`,
-            `震惊！一高中生竟没有完成笑读文言文第${thisWeekStartPage}~${thisWeekEndPage}篇！`,
+            `今天你完成笑读文言文第${thisWeekStartPage}~${thisWeekEndPage}篇了吗`,
+            `李老师：笑读文言文写不到${thisWeekStartPage}~${thisWeekEndPage}篇，语文肯定不会变好`,
+            `夜深人静，一学生竟在写笑读文言文${thisWeekStartPage}~${thisWeekEndPage}篇`,
+            `有人花半个钟在写笑读文言文${thisWeekStartPage}~${thisWeekEndPage}篇`,
+            `笑读文言文${thisWeekStartPage}~${thisWeekEndPage}篇是第${getSchoolWeek()}周的任务`,
+            `为什么不写写笑读文言文${thisWeekStartPage}~${thisWeekEndPage}篇呢`,
+            `写一写${thisWeekStartPage}~${thisWeekEndPage}，笑一笑文言文`,
         ];
 
         let text = jokes[Math.floor(Math.random() * jokes.length)];
