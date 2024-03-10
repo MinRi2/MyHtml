@@ -1,19 +1,13 @@
-const dateOffset = 9 * 1000; // 学校时间偏移
+const dateOffset = 9 * 1000; // 学校时间偏移 ms
 
 const nextDayTime = "21:15:00"; // 课表刷新时间
-const weekStartDate = new Date(2023, 7, 28); // $ 开学第一周第一天的时间
+const weekStartDate = new Date(2024, 1, 27); // $ 开学第一周第一天的时间
 
 /**
  * 别忘了填上你的密钥！
  */
 const unsplashKey = ""; // **$
-
-/**
- * 热搜榜定时关闭 在某些考试会用上
- */
-const disableBoardDates = TimeSchedule.timeArrayToTimeScheduleArray([
-    "2024/1/11 19:30-2024/1/11 22:00"
-]); // $
+const hefengKey = ""; // **$
 
 // 课程阴影颜色
 const coursesColorMap = {
@@ -37,13 +31,6 @@ const coursesColorMap = {
     "班": "#f2a65e",
     "跑": "#f2a65e",
     "自": "#c10ce9",
-
-    "欢": "red",
-    "迎": "orange",
-    "各": "yellow",
-    "位": "green",
-    "家": "skyblue",
-    "长": "purple",
 
     "测": "#996699",
 };
@@ -70,6 +57,8 @@ const coursesFullNameMap = {
     "跑": "跑操",
     "自": "自习",
     "测": "周测",
+
+    "吹": "吹水",
 }
 
 const headFullNameMap = {

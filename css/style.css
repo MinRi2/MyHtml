@@ -9,6 +9,7 @@ body {
     height: 100%;
     font-family: "FangZhengKaiTi";
     user-select: none;
+    overflow: hidden;
     /* filter: grayscale(30%); */
 }
 
@@ -35,6 +36,34 @@ body {
 .container {
     display: flex;
     justify-content: center;
+}
+
+.board_title {
+    width: 100%;
+    margin: 20px 0px 20px;
+
+    color: #121212;
+    text-align: center;
+}
+
+.board_title h1,
+.board_title h2 {
+    display: inline-block;
+    font-size: 60px;
+}
+
+.board_title h2 {
+    font-size: 20px;
+}
+
+.board_body {
+    position: relative;
+
+    flex-flow: column;
+    justify-content: start;
+    align-items: stretch;
+
+    width: 100%;
 }
 
 /* 倒计时 */
@@ -505,45 +534,20 @@ body {
         -2px -2px 4px rgba(255, 255, 255, 0.5),
         -4px -4px 4px rgba(255, 255, 255, 0.7);
 
-    width: 680px;
+    width: 40vw;
     /* height: 770px; */
 }
 
-.board_title {
-    width: 100%;
-    margin: 10px;
-    border-bottom: 3px #444 solid;
-
+.container_hot_board .board_title {
     color: #ff4d4d;
-    text-align: center;
 }
 
-.board_title img {
+.container_hot_board .board_title img {
     width: 50px;
     aspect-ratio: 1/1;
 }
 
-.board_title h1,
-.board_title h2 {
-    display: inline-block;
-    font-size: 60px;
-}
-
-.board_title h2 {
-    font-size: 20px;
-}
-
-.board_body {
-    position: relative;
-
-    flex-flow: column;
-    justify-content: start;
-    align-items: stretch;
-
-    width: 100%;
-}
-
-.board_body .mark {
+.container_hot_board .board_body .mark {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -564,11 +568,7 @@ body {
     transition: all 3s ease-in-out;
 }
 
-.board_body::-webkit-scrollbar {
-    display: none;
-}
-
-.board_body .card {
+.container_hot_board .board_body .card {
     flex: 1;
 
     justify-content: start;
@@ -587,7 +587,7 @@ body {
     transition: all 3s ease-in-out;
 }
 
-.board_body .card .image_wrapper {
+.container_hot_board .board_body .card .image_wrapper {
     position: relative;
 
     border-radius: 30px;
@@ -598,12 +598,12 @@ body {
     z-index: 1;
 }
 
-.board_body .card img {
+.container_hot_board .board_body .card img {
     width: 150px;
     height: 130px;
 }
 
-.board_body .card .index {
+.container_hot_board .board_body .card .index {
     position: absolute;
     top: 0;
 
@@ -617,7 +617,7 @@ body {
     font-size: 40px;
 }
 
-.board_body .card .title {
+.container_hot_board .board_body .card .title {
     flex: 1;
     margin: 0px 8px;
     color: black;
@@ -628,7 +628,7 @@ body {
     z-index: 1;
 }
 
-.board_body .card .hot {
+.container_hot_board .board_body .card .hot {
     position: absolute;
     top: 75%;
     right: 0;
@@ -639,4 +639,78 @@ body {
     color: #f60;
     font-size: 35px;
     z-index: 0;
+}
+
+/* 天气预报 */
+.container_weather_board {
+    flex-flow: column;
+    justify-content: start;
+    align-items: stretch;
+
+    position: absolute;
+    bottom: 0;
+
+    width: 50vw;
+    height: 70vh;
+
+    background: linear-gradient(to right, #6190e8aa, #a7bfe8aa);
+    background-size: 100% 100%;
+    border-top-right-radius: 30px;
+
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4),
+        4px 4px 4px rgba(0, 0, 0, 0.2),
+        -2px -2px 4px rgba(255, 255, 255, 0.5),
+        -4px -4px 4px rgba(255, 255, 255, 0.7);
+}
+
+.weather_chart {
+    height: 100%;
+
+    background: #eee7;
+    backdrop-filter: blur(5px);
+
+    margin: 10px;
+    padding: 15px 45px;
+    background-size: 100% auto;
+    box-shadow: 0 0 10px #121212 inset;
+    border-radius: 20px;
+}
+
+.container_weather_board .board_title {
+    justify-content: start;
+
+    color: #330033;
+}
+
+.container_weather_board .board_title h1 {
+    color: #eee;
+
+    margin: 8px;
+
+    text-shadow:
+        1px 1px 3px #2a2a2a,
+        3px 3px 3px #2a2a2a,
+        -1px -1px 3px #2a2a2a;
+
+}
+
+.container_weather_board .board_title h2 {
+    color: #121212;
+    font-size: 16px;
+}
+
+.container_weather_board .board_title img {
+    width: 1em;
+}
+
+.container_weather_board .info_wrapper {
+    flex-flow: column;
+    justify-content: start;
+
+    position: absolute;
+    right: 0;
+
+    margin: 0 10px 0 0;
+
+    text-align: right;
 }

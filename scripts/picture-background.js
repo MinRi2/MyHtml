@@ -1,5 +1,3 @@
-initPictureBackground();
-
 function initPictureBackground() {
     const background = document.getElementById("background_image");
 

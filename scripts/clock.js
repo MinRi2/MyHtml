@@ -1,5 +1,3 @@
-initClock();
-
 function initClock() {
     const clockYearElem = document.querySelector("#clock_year"),
         clockMonthElem = document.querySelector("#clock_month"),

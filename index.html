@@ -8,8 +8,22 @@
 
     <script src="./scripts/utils/date-utils.js"></script>
     <script src="./scripts/utils/animations.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"
+        integrity="sha512-k37wQcV4v2h6jgYf5IUz1MoSKPpDs630XGSmCaCCOXxy2awgAWKHGZWr9nMyGgk3IOxA1NxdkN8r1JHgkUtMoQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <script src="./scripts/utils/chroma.js"></script>
-    <script src="./scripts/utils/fetch-jsonp.js"></script>
+
+    <script src="./scripts/picture-background.js"></script>
+    <!-- <script src="./scripts/video-background.js"></script> -->
+    <script src="./scripts/wether-forcast-board.js"></script>
+    <script src="./scripts/hot-board.js"></script>
+    <script src="./scripts/courses.js"></script>
+    <script src="./scripts/clock.js"></script>
+    <script src="./scripts/event-timer.js"></script>
+    <script src="./scripts/courses-bar.js"></script>
+    <script src="./scripts/control.js"></script>
 </head>
 
 <body>
@@ -155,15 +169,21 @@
         </div>
     </div>
 
+    <div class="container container_weather_board">
+        <div class="container board_title">
+            <h1>天气预报</h1>
+            <h1 id="weather_show_type"></h1>
+            <div class="container info_wrapper">
+                <h2>数据来源：和风天气<img src="./images/weather/qweather.svg" alt=""></h2>
+                <h2>数据更新时间：<span id="weather_last_updated"></span></h2>
+                <h2>预报时间段: 11:30-12:30 || 17:40-19:10 || 22:05-23:00</h2>
+                <h2>24小时预报时间段: 11:30-11:40 || 17:40-17:50 || 22:05-23:25</h2>
+            </div>
+        </div>
+        <div class="weather_chart"></div>
+    </div>
+
     <div id="test"></div>
 </body>
-<script src="./scripts/picture-background.js"></script>
-<!-- <script src="./scripts/video-background.js"></script> -->
-<script src="./scripts/hot-board.js"></script>
-<script src="./scripts/courses.js"></script>
-<script src="./scripts/clock.js"></script>
-<script src="./scripts/event-timer.js"></script>
-<script src="./scripts/courses-bar.js"></script>
-<script src="./scripts/control.js"></script>
 
 </html>

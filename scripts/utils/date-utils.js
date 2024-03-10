@@ -40,6 +40,10 @@ class TimeSchedule {
      * @returns {Array}
      */
     static timeArrayToTimeScheduleArray(array, timeSplit = "-") {
+        if (array[0] instanceof TimeSchedule) {
+            return array;
+        }
+
         const result = [];
 
         for (let i = 0; i < array.length; i++) {
@@ -71,6 +75,14 @@ class TimeSchedule {
     }
 
 }
+
+const WITHIN_STATUS = {
+    WAITING: 'wait',
+    WITHIN: 'within',
+    OVER: 'over',
+}
+
+const dayStringMap = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
 function toDate(arg) {
     if (arg instanceof Date) {
@@ -203,6 +215,125 @@ function checkIntervalOrOver(date, func, overFunc, timeInterval = 1000) {
     }, timeInterval);
 }
 
+function checkWithinAll(data) {
+    const {
+        scheduleArray: dataSchedule,
+        waitCons,
+        withinCons,
+        overCons,
+        interval,
+    } = Object.assign({
+        waitCons: (date, index) => { },
+        withinCons: (date, index) => { },
+        overCons: (date, index) => { },
+        interval: 1000,
+    }, data);
+
+    scheduleArray = TimeSchedule.timeArrayToTimeScheduleArray(dataSchedule);
+
+    scheduleArray.forEach((schedule, index) => {
+        const { startTime, endTime } = schedule;
+
+        checkWithinInterval({
+            startTime: startTime,
+            endTime: endTime,
+            interval: interval,
+            waitCons: date => {
+                waitCons(date, index);
+            },
+            withinCons: date => {
+                withinCons(date, index);
+            },
+            overCons: date => {
+                overCons(date, index);
+            },
+        });
+    });
+}
+
+function checkWithinInterval(data) {
+    const {
+        startTime,
+        endTime,
+        waitCons,
+        withinCons,
+        overCons,
+        interval,
+    } = Object.assign({
+        waitCons: (date, index) => { },
+        withinCons: (date, index) => { },
+        overCons: (date, index) => { },
+        interval: 1000,
+    }, data);
+
+    const startDate = toDate(startTime);
+    const endDate = toDate(endTime);
+
+    let nowDate;
+
+    let status = null;
+
+    checkStatus();
+    if (status == WITHIN_STATUS.OVER) {
+        return;
+    }
+
+    let intervalId;
+    intervalId = setInterval(() => {
+        let newStatus = status;
+
+        nowDate = getSchoolDate();
+
+        switch (status) {
+            case WITHIN_STATUS.WAITING:
+                if (nowDate > startDate) {
+                    newStatus = WITHIN_STATUS.WITHIN;
+                }
+            case WITHIN_STATUS.WITHIN:
+                if (nowDate > endDate) {
+                    newStatus = WITHIN_STATUS.OVER;
+                }
+                break;
+            case WITHIN_STATUS.OVER:
+                clearInterval(intervalId);
+                return;
+        }
+
+        changeStatus(newStatus);
+    }, interval);
+
+    function checkStatus() {
+        nowDate = getSchoolDate();
+
+        if (nowDate < startDate) {
+            changeStatus(WITHIN_STATUS.WAITING);
+        } else if (nowDate > endDate) {
+            changeStatus(WITHIN_STATUS.OVER);
+        } else {
+            changeStatus(WITHIN_STATUS.WITHIN);
+        }
+    }
+
+    function changeStatus(newStatus) {
+        if (status == newStatus) {
+            return;
+        }
+
+        status = newStatus;
+
+        switch (status) {
+            case WITHIN_STATUS.WAITING:
+                waitCons(nowDate);
+                break;
+            case WITHIN_STATUS.WITHIN:
+                withinCons(nowDate);
+                break;
+            case WITHIN_STATUS.OVER:
+                overCons(nowDate);
+                break;
+        }
+    }
+}
 
 function dateToString(date, options = {}) {
     const defaultOpt = {
@@ -266,5 +397,7 @@ function getSchoolDate(offset = dateOffset) {
 function getSchoolWeek(offset = 0) {
     const nowDate = getSchoolDate();
     const day = (nowDate - weekStartDate) / 1000 / 60 / 60 / 24;
+
+    offset += weekStartDate.getDay() == 0 ? 7 : weekStartDate.getDay() - 1;
     return Math.floor((day + offset) / 7) + 1;
 }

@@ -85,7 +85,9 @@ class DaySchedule {
             const headName = headNameArray[i];
 
             const index = this.courseArray.findIndex(c => c.headName == headName);
-            this.courseArray.splice(index, 1);
+            if (index != -1) {
+                this.courseArray.splice(index, 1);
+            }
         }
     }
 
@@ -338,7 +340,7 @@ function initCourses() {
 
         const { courseArray } = daySchedule;
         for (let i = 0; i < courseArray.length; i++) {
-            const { headName, courseName } = courseArray[i];
+            let { headName, courseName } = courseArray[i];
             const headChild = headRowChildren[i],
                 courseChild = courseRowChildren[i];
 
@@ -351,7 +353,7 @@ function initCourses() {
                 shadowColor = null;
             if (!isSelfStudy(courseName)) {
                 textColor = "white";
-                shadowColor = coursesColorMap[courseName[0]];
+                shadowColor = getCourseShadowColor(courseName);
             } else if (courseName.includes("*")) {
                 courseName = courseName.replace("*", "");
             }
@@ -390,5 +392,19 @@ function initCourses() {
         if (cource[0] == "*") {
             return true;
         }
+    }
+
+    function getCourseShadowColor(courseName) {
+        const firstChar = courseName[0];
+
+        let shadowColor = coursesColorMap[firstChar];
+        if (!shadowColor) {
+            shadowColor = coursesColorMap[courseName];
+
+            if (!shadowColor) {
+                shadowColor = chroma.random();
+            }
+        }
+        return shadowColor;
     }
 }

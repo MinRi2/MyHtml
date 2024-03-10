@@ -8,8 +8,8 @@ class TimerEvent {
      * 
      * @param {Number} order 事件顺序 越小越优先
      * @param {String} name 事件名称
-     * @param {String, Date} startTime 开始日期
-     * @param {String, Date} endTime 结束日期
+     * @param {String, Date} startDate 开始日期
+     * @param {String, Date} endDate 结束日期
      * @param {String} discription 事件描述
      * @param {String} shadowColor 事件名称阴影颜色
      */
