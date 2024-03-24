@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, provide, reactive, ref, watchEffect } from "vue";
+import { onMounted, provide, reactive, ref, watch, watchEffect } from "vue";
 import Clock from './Clock.vue';
 import TimeBar from './TimeBar.vue';
 import Courses from './courses/Courses.vue';
@@ -23,7 +23,7 @@ const defaultOptions: PaperOptions = {
         nextPageInterval: 5,
     },
     courses: {
-        nextDayTime: "21:15:00",
+        nextDayTime: "",
         defaultHeads: [],
         defaultSchedules: [],
         daySpecials: {},
@@ -125,7 +125,7 @@ onMounted(() => {
         hotboardElement.value,
         [weatherElement.value]
     )
-})
+});
 </script>
 
 <template>

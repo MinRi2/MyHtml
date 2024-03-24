@@ -101,8 +101,9 @@ onMounted(() => {
 daySchedulesReact.forEach((schedule) => {
     const dayName = schedule.dayName;
 
-    watch(() => options.daySpecials[dayName], daySpecial => {
+    watch(options, () => {
         const { defaultHeads, defaultSchedules, specialCourses, headsOrder } = options;
+        const daySpecial = options.daySpecials[dayName];
 
         if (!daySpecial) {
             schedule.setSchedule({

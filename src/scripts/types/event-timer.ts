@@ -2,9 +2,9 @@ import { ValidDate, toDate } from "../utils/dateUtils";
 import * as chroma from "chroma-js";
 
 interface TimerEventData {
-    order: number,
+    order?: number,
     name: string,
-    startDate: ValidDate | null | undefined,
+    startDate?: ValidDate,
     endDate: ValidDate,
     discription?: string,
     color?: string,
@@ -29,10 +29,10 @@ class TimerEvent implements TimerEventData {
      * @param {String} color 事件名称阴影颜色
      */
     constructor(
-        public order: number,
         public name: string,
         startDate: ValidDate | null | undefined,
         endDate: ValidDate,
+        public order: number = 0,
         public discription: string = "",
         public color: string = "",
     ) {

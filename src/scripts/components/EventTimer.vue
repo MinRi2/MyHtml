@@ -15,7 +15,7 @@ watch(options.events, () => {
 
 //#region vars
 const timerEvents: TimerEvent[] = [];
-const emptyEvent = new TimerEvent(Infinity, "", null, "00:00");
+const emptyEvent = new TimerEvent("", null, "00:00", Infinity);
 
 const eventNameElem = ref<HTMLElement>(),
     eventEndTimeElem = ref<HTMLElement>(),
@@ -77,8 +77,8 @@ function refreshTimer() {
         if (!currentEvent) {
             setInfo("The End", "", "", "");
         } else {
-            const { name, endDate, discription, color: shadowColor } = currentEvent;
-            setInfo(name, `End: ${dateToString(endDate)}`, discription, shadowColor);
+            const { name, endDate, discription, color } = currentEvent;
+            setInfo(name, `End: ${dateToString(endDate)}`, discription, color);
         }
 
         lastEvent = currentEvent;
@@ -157,9 +157,9 @@ function readOptions() {
     timerEvents.splice(0, timerEvents.length);
 
     events.forEach((eventData: TimerEventData) => {
-        const { order = 0, name, startDate, endDate, discription, color: shadowColor } = eventData;
+        const { order, name, startDate, endDate, discription, color: shadowColor } = eventData;
 
-        const timerEvent = new TimerEvent(order, name, startDate, endDate, discription, shadowColor);
+        const timerEvent = new TimerEvent(name, startDate, endDate, order, discription, shadowColor);
 
         timerEvents.push(timerEvent);
     });

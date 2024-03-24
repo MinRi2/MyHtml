@@ -10,7 +10,7 @@ function initDynamicPaper() {
 
     setTimeout(() => {
         app.mount("#app");
-    }, 60 * 1000);
+    }, 0 * 1000);
 
     resizeBody();
 }

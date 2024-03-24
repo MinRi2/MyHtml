@@ -164,22 +164,12 @@ class Course {
         scheduleArray,
     }: DayScheduleData): Course[] {
         const length = headArray.length;
-
-        if (length > courseArray.length || length > scheduleArray.length) {
-            throw new Error(`
-                The length of headArray is not enough! Check your array's length. More infomation: 
-                    headArray's length: ${headArray.length}
-                    courseArray's length: ${courseArray.length}
-                    scheduleArray's length:${scheduleArray.length}
-                `);
-        }
-
         const result: Course[] = [];
 
         for (let i = 0; i < length; i++) {
             const headName = headArray[i],
-                courseName = courseArray[i],
-                schedule = scheduleArray[i];
+                courseName = courseArray[i] ?? "",
+                schedule = scheduleArray[i] ?? "-";
 
             const course = new Course(headName, courseName, schedule);
 

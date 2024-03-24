@@ -2,7 +2,7 @@
 import { TimeInterval, TimeSchedule, ValidDate, dateToString, dayStringMap, getSchoolDate } from "../utils/dateUtils";
 import * as animations from "../utils/animations";
 import * as chroma from "chroma-js"
-import { ComputedRef, inject, reactive, ref, watch } from "vue";
+import { ComputedRef, inject, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { BarSchedule, BarScheduleData } from "../types/timeBar";
 import { TimeBarOptions } from "../paperOptions";
 import { daySchedules } from "../types/courses";
@@ -25,7 +25,7 @@ const customTextChangeFrames = {
     transform: ["", ""],
 };
 
-const refreshBarInterval = new TimeInterval(() => refreshBar(), 3 * 1000);
+const refreshBarInterval = new TimeInterval(() => refreshBar(), 3 * 1000, false);
 const daySchedulesReact = reactive(daySchedules);
 
 const { options } = defineProps<{
@@ -36,9 +36,18 @@ const courseColorMap = inject<stringObj>("courseColorMap");
 const courseFullNameMap = inject<stringObj>("courseFullNameMap");
 const headFullNameMap = inject<stringObj>("headFullNameMap");
 
-watch(() => [options.extraBar, options.defaultBar, daySchedulesReact], () => {
-    readOptions();
-}, { deep: true });
+onMounted(() => {
+    refreshBarInterval.enable();
+
+    watch(() => [options.extraBar, options.defaultBar, daySchedulesReact], () => {
+        readOptions();
+        refreshBar();
+    }, { deep: true });
+});
+
+onUnmounted(() => {
+    refreshBarInterval.disable();
+});
 
 function readOptions() {
     const { extraBar, defaultBar } = options;

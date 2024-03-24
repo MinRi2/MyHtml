@@ -12,7 +12,7 @@ function mergeObjFrom(target: stringObj, source: stringObj, defaultObj: stringOb
             return;
         }
 
-        if (typeof targetData != typeof sourceData) {
+        if (typeof targetData !== typeof sourceData) {
             return;
         }
 
@@ -34,20 +34,20 @@ function mergeObjFrom(target: stringObj, source: stringObj, defaultObj: stringOb
         }
     });
 
-    if (!defaultObj) {
-        return target;
-    }
-
+    // 删除非默认配置的值
     const targetKeys = Object.keys(target);
     targetKeys.forEach(key => {
         if (source[key] !== undefined) {
             return;
         }
 
-        const defaultData = defaultObj[key];
-        if (defaultData !== undefined) {
-            target[key] = clone(defaultData);
-            return;
+        if (defaultObj) {
+            const defaultData = defaultObj[key];
+
+            if (defaultData !== undefined) {
+                target[key] = clone(defaultData);
+                return;
+            }
         }
 
         target[key] = undefined;
@@ -57,21 +57,28 @@ function mergeObjFrom(target: stringObj, source: stringObj, defaultObj: stringOb
 }
 
 function mergeArrayFrom(target: any[], source: any[], defaultArray: any[]) {
-    const length = target.length;
+    const targetLen = target.length;
+    const sourceLen = source.length;
 
-    source.forEach((element, index) => {
-        if (index >= length) {
-            target.push(element);
+    if (sourceLen < targetLen) {
+        target.splice(sourceLen, targetLen - sourceLen);
+    }
+
+    for (let i = 0; i < sourceLen; i++) {
+        const element = source[i];
+
+        if (i >= targetLen) {
+            target.push(clone(element));
         } else {
-            if (typeof element == "object") {
-                const defaultElem = defaultArray ? defaultArray[index] : undefined;
+            if (Array.isArray(element) || typeof element == "object") {
+                const defaultElem = defaultArray ? defaultArray[i] : undefined;
 
-                mergeObjFrom(target[index], element, defaultElem);
-            } else if (target[index] !== element) {
-                target[index] = element;
+                mergeObjFrom(target[i], element, defaultElem);
+            } else if (target[i] !== element) {
+                target[i] = clone(element);
             }
         }
-    });
+    }
 }
 
 function clone(target: any) {
