@@ -7,7 +7,6 @@
         "nextPageInterval": 0.05
     },
     "courses": {
-        // "showDay": "周二",
         "nextDayTime": "21:00",
         "defaultHeads": [
         ],
@@ -16,10 +15,12 @@
         "headsOrder": {
         },
         "daySpecials": {
-        },
+        }
     },
     "timeBar": {
         "extraBar": {
+        },
+        "defaultBar": [
         ]
     },
     "eventTimer": {
@@ -61,7 +62,7 @@
         "跑": "#f2a65e",
         "自": "#c10ce9",
 
-        "测": "#996699",
+        "测": "#996699"
     },
     "courseFullNameMap": {
         "语": "语文",
@@ -84,7 +85,7 @@
         "班": "班会",
         "跑": "跑操",
         "自": "自习",
-        "测": "周测",
+        "测": "周测"
     },
     "headFullNameMap": {
         "早": "早读",
