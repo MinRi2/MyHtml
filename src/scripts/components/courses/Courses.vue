@@ -165,11 +165,10 @@ daySchedulesReact.forEach((schedule) => {
         });
 
         if (headsOrder) for (const headName in headsOrder) {
-            if (!Object.prototype.hasOwnProperty.call(headsOrder, headName)) {
-                continue;
-            }
-
             const order = headsOrder[headName];
+
+            if (order === undefined) return;
+
             schedule.setOrder(headName, order);
         }
 
