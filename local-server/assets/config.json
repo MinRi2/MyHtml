@@ -1,0 +1,106 @@
+{
+    "weekStartDate": "2024/2/27",
+    "picturePaper": {
+        "enableUnsplash": false,
+        "unsplashKey": "",
+        "fetchCount": 60,
+        "nextPageInterval": 0.05
+    },
+    "courses": {
+        // "showDay": "周二",
+        "nextDayTime": "21:00",
+        "defaultHeads": [
+        ],
+        "defaultSchedules": [
+        ],
+        "headsOrder": {
+        },
+        "daySpecials": {
+        },
+    },
+    "timeBar": {
+        "extraBar": {
+        ]
+    },
+    "eventTimer": {
+        "events": [
+        ]
+    },
+    "hotboard": {
+        "groupSize": 4,
+        "maxRound": 5,
+        "updateCardPerMinute": 5
+    },
+    "weather": {
+        "hefengKey": "",
+        // "showType": "7d",
+        "showWithin": [
+        ],
+        "show7dWithin": [
+        ]
+    },
+    "courseColorMap": {
+        "语": "#ff0000",
+        "数": "#00c2ff",
+        "英": "#ff9900",
+
+        "物": "#c10ce9",
+        "化": "#00c2ff",
+        "生": "#8fde5d",
+        "政": "#cd5c5c",
+
+        "听": "#cd5c5c",
+
+        "体": "#ff9999",
+        "心": "#ff9999",
+        "信": "#ff9999",
+        "通": "#ff9999",
+        "劳": "#ff9999",
+
+        "班": "#f2a65e",
+        "跑": "#f2a65e",
+        "自": "#c10ce9",
+
+        "测": "#996699",
+    },
+    "courseFullNameMap": {
+        "语": "语文",
+        "数": "数学",
+        "英": "英语",
+
+        "物": "物理",
+        "化": "化学",
+        "生": "生物",
+        "政": "政治",
+
+        "听": "听力",
+
+        "体": "体育",
+        "心": "心理",
+        "信": "信息与技术",
+        "通": "通用技术",
+        "劳": "劳动",
+
+        "班": "班会",
+        "跑": "跑操",
+        "自": "自习",
+        "测": "周测",
+    },
+    "headFullNameMap": {
+        "早": "早读",
+        "一": "第一节",
+        "二": "第二节",
+        "三": "第三节",
+        "四": "第四节",
+        "五": "第五节",
+        "午": "午读",
+        "六": "第六节",
+        "七": "第七节",
+        "八": "第八节",
+        "课服": "课后服务",
+        "晚一": "晚自习第一节",
+        "晚二": "晚自习第二节",
+        "晚三": "晚自习第三节",
+        "测": "周测"
+    }
+}

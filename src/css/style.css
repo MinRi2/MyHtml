@@ -1,0 +1,43 @@
+@font-face {
+    font-family: "FangZhengKaiTi";
+    src: url("../fonts/FangZhengKaiTi.ttf");
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+    font-family: "FangZhengKaiTi";
+    user-select: none;
+    overflow: hidden;
+    /* filter: grayscale(30%); */
+}
+
+body {
+    background: linear-gradient(90deg, #1f005c, #5b0060, #870160, #ac255e, #ca485c, #e16b5c, #f39060, #ffb56b);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+/* 背景 */
+.background {
+    position: absolute;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-attachment: fixed;
+    transition: all 1s ease-in-out;
+    z-index: -1;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+}
