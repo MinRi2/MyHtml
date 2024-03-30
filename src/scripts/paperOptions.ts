@@ -1,6 +1,6 @@
 import { BarScheduleData } from "./types/timeBar";
 import { CourseShowOn } from "./types/courses";
-import { DayName, ValidDate, ValidTimeSchedule } from "./utils/dateUtils";
+import { DayName } from "./utils/dateUtils";
 import { TimerEventData } from "./types/event-timer";
 import { stringObj } from "./utils/typeUtils";
 import { WeatherTypeName } from "./types/wether-forcast-board";

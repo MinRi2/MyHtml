@@ -1,7 +1,7 @@
 # 动态壁纸
-* ### <img width=40 src=/assets/icons/FluentClass20Filled.png>为课堂设计的动态壁纸
-* ### <img width=40 src=/assets/icons/vue.png> 响应式的配置修改 
-* ### <img width=40 src=/assets/icons/SimpleIconsFastapi.png> 快速上手
+* <img width=40 src=/assets/icons/FluentClass20Filled.png> **为课堂设计的动态壁纸**
+* <img width=40 src=/assets/icons/vue.png> **响应式的配置修改**
+* <img width=40 src=/assets/icons/SimpleIconsFastapi.png> **快速上手**
 
 # 特色功能
  * ## 课程表
@@ -38,15 +38,15 @@
     <img width=400 src=/assets/icons/pictureBackground.png>
 
 # 如何使用
+<h3>1. 启动本机服务器</h3>
 
-#### 1. 启动本机服务器
-* ##### 安装NodeJs <img width=60 src=/assets/icons/nodejs.svg>
+<h4>安装NodeJs <img width=60 src=/assets/icons/nodejs.svg></h4>
     前往 [NodeJsDownload] 官方网站下载并安装
 
-* ##### 手动启动
+* <h5>手动启动</h5>
     在 [local-server] 目录下 双击运行[setupService.bat]
 
-* ##### 设置自启动
+* <h5>设置自启动</h5>
     在 [local-server] 目录下 双击运行[setupService.bat]
 
 > [!NOTE]\
@@ -54,20 +54,23 @@
 > 如果需要删除服务 以管理员身份运行命令行`cmd`
 > 执行指令 ```sc delete dynmaticpaperlocalserver.exe``` 即可
 
-#### 2. 使用**动态壁纸软件**(或者其他支持HTML壁纸的软件)
+<h3>2. 使用动态壁纸软件</h3>
+
 * <img width=30 src=/assets/icons/wallpaper_engine_logo.png> `WallpaperEngine` 需要在Steam上购买
 
 * <img width=30 src=/assets/icons/livelyPaper.png> [`LivelyPaper`](https://github.com/rocksdanister/lively) 免费开源
 
-#### 3. 添加自定义壁纸 -> 将index.html导入
+<h3>3. 导入壁纸</h3>
 
-<img width=30 src=/assets/icons/livelyPaper.png> [LivelyPaper](https://github.com/rocksdanister/lively) 为例
+<img width=30 src=/assets/icons/livelyPaper.png> 以 [LivelyPaper](https://github.com/rocksdanister/lively) 为例
 
 <img width=400 src=/assets/use/import.jpg>
 
 
 # 配置文件
-// TODO
+
+**见 [configDocument.md]**
+
 # 关于代码
 * 在遵守 **[GPL-3.0]协议** 下，你随意可以**修改**、**使用**此仓库的代码
 
@@ -77,3 +80,4 @@
 [setupService.bat]: ./local-server/setupService.bat
 [startServer.bat]: ./local-server/startServer.bat
 [NodeJsDownload]: https://nodejs.cn/download/
+[configDocument.md]: ./configDocument.md
