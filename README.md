@@ -49,10 +49,10 @@
 * ##### 设置自启动
     在 [local-server] 目录下 双击运行[setupService.bat]
 
-    > [!NOTE]\
-    > 自启动会注册一个 `dynmaticpaperlocalserver.exe` 的windows服务，用以实现自启动
-    > 如果需要删除服务 以管理员身份运行命令行`cmd`
-    > 执行指令 ```sc delete dynmaticpaperlocalserver.exe``` 即可
+> [!NOTE]\
+> 自启动会注册一个 `dynmaticpaperlocalserver.exe` 的windows服务，用以实现自启动
+> 如果需要删除服务 以管理员身份运行命令行`cmd`
+> 执行指令 ```sc delete dynmaticpaperlocalserver.exe``` 即可
 
 #### 2. 使用**动态壁纸软件**(或者其他支持HTML壁纸的软件)
 * <img width=30 src=/assets/icons/wallpaper_engine_logo.png> `WallpaperEngine` 需要在Steam上购买
