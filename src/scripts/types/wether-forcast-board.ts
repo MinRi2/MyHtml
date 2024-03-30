@@ -9,7 +9,7 @@ const cityAdCode = 101301101;
 const hefengWeatherApi = 'https://devapi.qweather.com';
 
 const maxShow = 3;
-const textSize = 45, iconSize = textSize;
+const textSize = 45, iconSize = textSize * 2;
 const iconPath = "./images/weather"
 const weatherIconIds = [
     100, 101, 102, 103, 104, 150, 151, 152, 153,
