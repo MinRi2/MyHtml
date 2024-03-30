@@ -1,7 +1,7 @@
 # 动态壁纸
-* ### <img width=20 src=/assets/icons/FluentClass20Filled.png>为课堂设计的动态壁纸
-* ### <img width=20 src=/assets/icons/vue.png> 响应式的配置修改 
-* ### <img width=20 src=/assets/icons/SimpleIconsFastapi.png> 快速上手
+* ### <img width=40 src=/assets/icons/FluentClass20Filled.png>为课堂设计的动态壁纸
+* ### <img width=40 src=/assets/icons/vue.png> 响应式的配置修改 
+* ### <img width=40 src=/assets/icons/SimpleIconsFastapi.png> 快速上手
 
 # 特色功能
  * ## 课程表
@@ -19,18 +19,22 @@
 * ## 时间
     显示当前时间
     按需求进行时间偏移
+
     <img width=400 src=/assets/icons/clock.png>
 
 * ## 事件倒计时
     倒计时
+
     <img width=400 src=/assets/icons/eventTimer.png>
 
 * ## 热搜榜
     显示实时的热搜榜单
+
     <img width=400 src=/assets/icons/hotboard.png>
 
 * ## <img width=20 src=/assets/icons/unsplash.png> 动态壁纸 
     使用 **[Unsplash]** 动态切换壁纸
+
     <img width=400 src=/assets/icons/pictureBackground.png>
 
 # 如何使用
@@ -39,18 +43,13 @@
 * ##### 安装NodeJs <img width=60 src=/assets/icons/nodejs.svg>
     前往 [NodeJsDownload] 官方网站下载并安装
 
-* ##### 安装依赖
-    在 [local-server] 目录下 打开命令行 `cmd`
-    执行指令 ```node install```
-
 * ##### 手动启动
-    在 [local-server] 目录下 打开命令行 `cmd`
-    执行指令 ```node app.mjs``` 
+    在 [local-server] 目录下 双击运行[setupService.bat]
 
 * ##### 设置自启动
     在 [local-server] 目录下 双击运行[setupService.bat]
 
-    > [!NOTE]
+    > [!NOTE]\
     > 自启动会注册一个 `dynmaticpaperlocalserver.exe` 的windows服务，用以实现自启动
     > 如果需要删除服务 以管理员身份运行命令行`cmd`
     > 执行指令 ```sc delete dynmaticpaperlocalserver.exe``` 即可
@@ -76,4 +75,5 @@
 [GPL-3.0]: ./LICENSE
 [local-server]: ./local-server/
 [setupService.bat]: ./local-server/setupService.bat
+[startServer.bat]: ./local-server/startServer.bat
 [NodeJsDownload]: https://nodejs.cn/download/
