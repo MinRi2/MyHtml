@@ -11,6 +11,7 @@ import PaperOptions from "../paperOptions";
 import { clone, mergeObjFrom } from "../utils/objectUtils";
 import { dateOffset, TimeInterval, toDate, weekStartDate } from "../utils/dateUtils";
 import { ElementGroup, GroupedElement } from "../types/elementGroup";
+import { coursesData } from "../types/courses";
 
 const defaultOptions: PaperOptions = {
     weekStartDate: "",
@@ -38,7 +39,7 @@ const defaultOptions: PaperOptions = {
     },
     weather: {
         hefengKey: "",
-        chartMovePerSecond: 10,
+        chartMoveSeconds: 10,
         showWithin: [],
         show7dWithin: [],
     },
@@ -62,9 +63,9 @@ const defaultOptions: PaperOptions = {
 
 var options = reactive<PaperOptions>(clone(defaultOptions));
 
-provide("courseColorMap", options.courseColorMap);
-provide("courseFullNameMap", options.courseFullNameMap);
-provide("headFullNameMap", options.headFullNameMap);
+coursesData.headFullNameMap = options.headFullNameMap;
+coursesData.courseFullNameMap = options.courseFullNameMap;
+coursesData.courseColorMap = options.courseColorMap;
 
 watchEffect(() => {
     const offset = options.dateOffset;
@@ -82,7 +83,7 @@ watchEffect(() => {
 const connectInterval = new TimeInterval(() => {
     const socket = new WebSocket("ws://localhost:3000/config");
 
-    socket.onmessage = event => {
+    socket.onmessage = (event: MessageEvent<any>) => {
         const serverOptions: PaperOptions = JSON.parse(event.data);
 
         mergeObjFrom(options, serverOptions, defaultOptions);
@@ -163,7 +164,7 @@ onMounted(() => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .container_courses {
     position: absolute;
     left: 50%;
@@ -264,8 +265,8 @@ onMounted(() => {
     position: absolute;
     bottom: 0;
 
-    width: 50vw;
-    height: 900px;
+    width: 900px;
+    aspect-ratio: 4/3;
 
     background: linear-gradient(to right, #6190e8aa, #a7bfe8aa);
     background-size: 100% 100%;

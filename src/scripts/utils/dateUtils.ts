@@ -7,13 +7,17 @@ const weekStartDate = ref(new Date()); // 开学第一周的时间
 type ValidDate = Date | string;
 type ValidTimeSchedule = string | TimeSchedule;
 
-interface TimeWithinData<ScheduleType> {
+interface WithinTaskData<ScheduleType> {
     schedule: ScheduleType;
     interval: number;
     enable?: boolean;
     waitCons?: () => void;
     withinCons?: () => void;
     overCons?: () => void;
+}
+
+interface WithinTasksData extends WithinTaskData<ValidTimeSchedule[]> {
+    onFinished?: () => void;
 }
 
 interface DateToStringData {
@@ -53,6 +57,10 @@ class TimeSchedule {
         return toDate(this.endTime);
     }
 
+    public compareTo(other: TimeSchedule) {
+        return +this.getStartDate() - +other.getStartDate();
+    }
+
     static timeArrayToTimeScheduleArray(array: ValidTimeSchedule[], timeSplit: string = "-") {
         const result: TimeSchedule[] = [];
 
@@ -64,12 +72,13 @@ class TimeSchedule {
             return array as TimeSchedule[];
         }
 
-        for (let i = 0; i < array.length; i++) {
-            const time = array[i];
+        const stringTimeArray = array as string[];
+
+        stringTimeArray.forEach((time: string) => {
             const schedule = TimeSchedule.toTimeSchedule(time, timeSplit);
 
             result.push(schedule);
-        }
+        });
 
         return result;
     }
@@ -100,7 +109,7 @@ enum WithinStatus {
     OVER = 'over',
 }
 
-class TimeWihtin extends Disable {
+class TimeWihtinTask extends Disable {
     public status: WithinStatus;
     public schedule: TimeSchedule;
 
@@ -119,7 +128,7 @@ class TimeWihtin extends Disable {
         waitCons = () => { },
         withinCons = () => { },
         overCons = () => { },
-    }: TimeWithinData<ValidTimeSchedule>) {
+    }: WithinTaskData<ValidTimeSchedule>) {
         super();
 
         this.waitCons = waitCons;
@@ -219,8 +228,19 @@ class TimeWihtin extends Disable {
     }
 }
 
-class TimeWithinAll extends Disable {
-    private withinArray: TimeWihtin[];
+class TimeWithinTasks extends Disable {
+    public finished = false;
+
+    private index: number = 0;
+
+    private interval: number;
+    private tasks: TimeSchedule[];
+    private currentTask: TimeWihtinTask;
+
+    private waitCons: () => void;
+    private withinCons: () => void;
+    private overCons: () => void;
+    private onFinished: () => void;
 
     constructor({
         schedule: scheduleArray,
@@ -229,35 +249,56 @@ class TimeWithinAll extends Disable {
         waitCons = () => { },
         withinCons = () => { },
         overCons = () => { },
-    }: TimeWithinData<ValidTimeSchedule[]>) {
+        onFinished = () => { },
+    }: WithinTasksData) {
         super();
 
-        this.withinArray = new Array(scheduleArray.length);
+        this.tasks = TimeSchedule.timeArrayToTimeScheduleArray(scheduleArray);
+        this.interval = interval;
 
-        for (let i = 0; i < scheduleArray.length; i++) {
-            const schedule = scheduleArray[i];
-            this.withinArray[i] = new TimeWihtin({
-                schedule: schedule,
-                interval: interval,
-                enable: enable,
-                waitCons: waitCons,
-                withinCons: withinCons,
-                overCons: overCons,
-            });
+        this.waitCons = waitCons;
+        this.withinCons = withinCons;
+        this.overCons = overCons;
+        this.onFinished = onFinished;
+
+        this.tasks.sort((t1, t2) => t1.compareTo(t2));
+
+        this.next();
+
+        if (this.currentTask) {
+            this.currentTask.enabled = enable;
         }
     }
 
     protected override onEnabled() {
-        this.withinArray.forEach(timeWithin => {
-            timeWithin.enable();
-        });
+        this.currentTask.enable();
     }
 
     protected override onDisabled() {
-        this.withinArray.forEach(timeWithin => {
-            timeWithin.disable();
+        this.currentTask.disable();
+    }
+
+    private next() {
+        if (this.index >= this.tasks.length) {
+            this.finished = true;
+            this.onFinished();
+            return;
+        }
+
+        const schedule = this.tasks[this.index++];
+
+        this.currentTask = new TimeWihtinTask({
+            schedule: schedule,
+            interval: this.interval,
+            waitCons: this.waitCons,
+            withinCons: this.withinCons,
+            overCons: () => {
+                this.overCons();
+                this.next();
+            }
         });
     }
+
 }
 
 class TimeInterval extends Disable {
@@ -513,6 +554,6 @@ function checkIntervalOrOver(date: ValidDate, func: Function, overFunc: Function
 }
 
 export { DayName }
-export { TimeSchedule, ValidDate, ValidTimeSchedule, TimeWihtin, TimeWithinAll, TimeInterval }
+export { TimeSchedule, ValidDate, ValidTimeSchedule, TimeWihtinTask as TimeWihtin, TimeWithinTasks as TimeWithinAll, TimeInterval }
 export { WithinStatus, dayStringMap, dateOffset, weekStartDate }
 export { withinTime, checkIntervalOrOver, toDate, dateToString, getSchoolDate, getSchoolWeek }

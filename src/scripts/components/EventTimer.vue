@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { TimerEvent, TimerEventData } from '../types/event-timer';
-import { getSchoolDate, dateToString, TimeInterval } from '../utils/dateUtils';
+import { getSchoolDate, dateToString, TimeInterval, dayStringMap } from '../utils/dateUtils';
 import * as animations from "../utils/animations";
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import { EventTimerOptions } from '../paperOptions';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { EventTimerOptions, TimerEventOptions } from '../paperOptions';
+import { coursesData } from '../types/courses';
+import { format } from '../utils/stringUtils';
 
 const { options } = defineProps<{
     options: EventTimerOptions,
@@ -14,6 +16,8 @@ watch(options.events, () => {
 });
 
 //#region vars
+const { daySchedules } = coursesData;
+
 const timerEvents: TimerEvent[] = [];
 const emptyEvent = new TimerEvent("", null, "00:00", Infinity);
 
@@ -71,7 +75,7 @@ onUnmounted(() => {
 function refreshTimer() {
     const nowDate = getSchoolDate();
 
-    currentEvent = timerEvents.find(e => e.shouldTiming(nowDate));
+    currentEvent = timerEvents.find((e: TimerEvent) => e.shouldTiming(nowDate));
 
     if (lastEvent !== currentEvent) {
         if (!currentEvent) {
@@ -156,15 +160,42 @@ function readOptions() {
 
     timerEvents.splice(0, timerEvents.length);
 
-    events.forEach((eventData: TimerEventData) => {
-        const { order, name, startDate, endDate, discription, color: shadowColor } = eventData;
+    const today = new Date().getDay();
+    const todayDayName = dayStringMap[today];
+    const todaySchedule = daySchedules[today];
 
-        const timerEvent = new TimerEvent(name, startDate, endDate, order, discription, shadowColor);
+    events.forEach((eventData: TimerEventOptions) => {
+        const { order, discription, showOn, scheduleHead } = eventData;
+
+        if (showOn && showOn.indexOf(todayDayName) == -1) {
+            return;
+        }
+
+        let name = eventData.name, startDate, endDate, color;
+
+        if (scheduleHead) {
+            const scheduleCourse = todaySchedule.getCourse(scheduleHead);
+
+            if (scheduleCourse) {
+                const { courseName, schedule } = scheduleCourse;
+
+                name = format(name, courseName);
+                startDate = schedule.startTime;
+                endDate = schedule.endTime;
+                color = coursesData.getCourseColor(courseName);
+            }
+        }
+
+        startDate = eventData.startDate ?? startDate;
+        endDate = eventData.endDate ?? endDate;
+        color = eventData.color ?? color;
+
+        const timerEvent = new TimerEvent(name, startDate, endDate, order, discription, color);
 
         timerEvents.push(timerEvent);
     });
 
-    timerEvents.sort((e1, e2) => e1.order - e2.order);
+    timerEvents.sort((e1: TimerEvent, e2: TimerEvent) => e1.order - e2.order);
 }
 
 </script>
@@ -218,7 +249,7 @@ function readOptions() {
     </div>
 </template>
 
-<style>
+<style scoped>
 #event_block {
     --text-shadow-color: #444;
     flex-flow: column;

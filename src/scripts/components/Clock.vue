@@ -99,7 +99,7 @@ function fixed(num: number): string {
     </div>
 </template>
 
-<style>
+<style scoped>
 .date_block {
     align-items: end;
     margin: 10px;

@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue';
-import { Course } from '../../types/courses';
+import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
+import { Course, coursesData } from '../../types/courses';
 import * as animations from "../../utils/animations";
 import { TimeInterval, getSchoolDate } from '../../utils/dateUtils';
 
 const props = defineProps<{
     course: Course,
     offsetDay: number,
-    getCourseShadowColor: (name: string) => string,
 }>();
 
 const headColor = ref("white");
 const courseColor = ref("white");
-const shadowColor = computed(() => props.getCourseShadowColor(courseName.value));
 
 const course = computed(() => props.course);
 const courseName = computed(() => {
@@ -31,6 +29,7 @@ const courseName = computed(() => {
 
     return courseName;
 });
+const shadowColor = computed(() => coursesData.getCourseColor(courseName.value));
 
 const headElem = ref<HTMLElement>(),
     courseElem = ref<HTMLElement>();
@@ -87,7 +86,7 @@ onUnmounted(() => {
     </div>
 </template>
 
-<style>
+<style scoped>
 .cell {
     display: flex;
     flex-flow: column;

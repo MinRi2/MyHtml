@@ -45,7 +45,9 @@ onMounted(() => {
     chartMoveInterval.enable();
 
     watchEffect(() => {
-        chartMoveInterval.setInterval(options.chartMovePerSecond * 1000);
+        console.log(options.chartMoveSeconds);
+
+        chartMoveInterval.setInterval(options.chartMoveSeconds * 1000);
     });
 
     watchEffect(() => {
@@ -135,7 +137,7 @@ onUnmounted(() => {
     <div class="weather_chart" ref="weatherChart"></div>
 </template>
 
-<style>
+<style scoped>
 .weather_chart {
     height: 100%;
 
@@ -159,6 +161,7 @@ onUnmounted(() => {
     color: #eee;
 
     margin: 8px;
+    font-size: 60px;
 
     text-shadow:
         1px 1px 3px #2a2a2a,

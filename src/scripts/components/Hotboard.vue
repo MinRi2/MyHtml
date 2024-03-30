@@ -175,7 +175,7 @@ function wenYanWenCard() {
 </script>
 
 <template>
-    <div class="container" id="hotboard_title">
+    <div class="container board_title">
         <img src="../../images/hot.png">
         <h1>今日热搜</h1>
 
@@ -204,8 +204,8 @@ function wenYanWenCard() {
     </div>
 </template>
 
-<style>
-#hotboard_title {
+<style scoped>
+.board_title {
     width: 100%;
     margin: 20px 0px 20px;
 
@@ -214,22 +214,22 @@ function wenYanWenCard() {
     justify-content: start;
 }
 
-#hotboard_title img {
+.board_title img {
     width: 50px;
     aspect-ratio: 1/1;
 }
 
-#hotboard_title h1,
-#hotboard_title h2 {
+.board_title h1,
+.board_title h2 {
     font-size: 60px;
 }
 
-#hotboard_title h2 {
+.board_title h2 {
     font-size: 30px;
     color: #121212;
 }
 
-#hotboard_title .info_wrapper {
+.board_title .info_wrapper {
     flex-flow: column;
     justify-content: start;
 

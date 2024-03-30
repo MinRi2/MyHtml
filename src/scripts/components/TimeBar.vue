@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { TimeInterval, TimeSchedule, ValidDate, dateToString, dayStringMap, getSchoolDate } from "../utils/dateUtils";
+import { TimeInterval, dayStringMap, getSchoolDate } from "../utils/dateUtils";
 import * as animations from "../utils/animations";
 import * as chroma from "chroma-js"
-import { ComputedRef, inject, onMounted, onUnmounted, reactive, ref, watch } from "vue";
-import { BarSchedule, BarScheduleData } from "../types/timeBar";
+import { inject, onMounted, onUnmounted, ref, watch } from "vue";
+import { BarSchedule } from "../types/timeBar";
 import { TimeBarOptions } from "../paperOptions";
-import { daySchedules } from "../types/courses";
+import { coursesData } from "../types/courses";
 import { stringObj } from "../utils/typeUtils";
+
+const { daySchedules } = coursesData;
 
 const defaultBarSchedule = new BarSchedule("", "", "", "white");
 
@@ -26,20 +28,15 @@ const customTextChangeFrames = {
 };
 
 const refreshBarInterval = new TimeInterval(() => refreshBar(), 3 * 1000, false);
-const daySchedulesReact = reactive(daySchedules);
 
 const { options } = defineProps<{
     options: TimeBarOptions
 }>();
 
-const courseColorMap = inject<stringObj>("courseColorMap");
-const courseFullNameMap = inject<stringObj>("courseFullNameMap");
-const headFullNameMap = inject<stringObj>("headFullNameMap");
-
 onMounted(() => {
     refreshBarInterval.enable();
 
-    watch(() => [options.extraBar, options.defaultBar, daySchedulesReact], () => {
+    watch(() => [options.extraBar, options.defaultBar, daySchedules], () => {
         readOptions();
         refreshBar();
     }, { deep: true });
@@ -75,16 +72,14 @@ function readOptions() {
     }
 
 
-    daySchedulesReact[today].courseArray.forEach(course => {
+    daySchedules[today].courseArray.forEach(course => {
         const { headName, courseName, schedule } = course;
 
         if (!courseName || courseName == "") return;
 
-        const firstChar = courseName[0];
-
-        let barHeadName = headFullNameMap ? (headFullNameMap[headName] ?? headName) : headName;
-        let barCourseName = courseFullNameMap ? (courseFullNameMap[firstChar] ?? courseName) : courseName;
-        let barColor = courseColorMap ? (courseColorMap[firstChar] ?? courseColorMap[courseName] ?? "") : "";
+        let barHeadName = coursesData.getHeadFullName(courseName);
+        let barCourseName = coursesData.getCourseFullName(courseName);
+        let barColor = coursesData.getCourseColor(courseName);
 
         const bar = new BarSchedule(`${barHeadName}: ${barCourseName}`, schedule.startTime, schedule.endTime, barColor);
 
@@ -200,7 +195,7 @@ function addBarSchedules(barScheduleArray: BarSchedule[]) {
     </div>
 </template>
 
-<style>
+<style scoped>
 .bar_cutbox {
     position: absolute;
     top: 50%;

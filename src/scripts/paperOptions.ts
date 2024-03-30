@@ -50,13 +50,14 @@ interface CoursesOptions {
 }
 
 interface DayScheduleOption {
-    extraCourses?: ExtraCourseOption[];
-    deleteHeads?: string[];
     acceptDefault?: boolean;
+    deleteHeads?: string[];
+    defaultCourses?: string[];
+    extraCourses?: ExtraCourseOption[];
+    acceptDay?: DayName;
     specialSchedules?: {
         [key: string]: string;
     };
-    courseNames?: string[];
 }
 
 interface ExtraCourseOption {
@@ -74,7 +75,12 @@ interface SpecialCourseOption {
 
 //#region 倒计时
 interface EventTimerOptions {
-    events: TimerEventData[];
+    events: TimerEventOptions[];
+}
+
+interface TimerEventOptions extends TimerEventData {
+    showOn?: DayName[];
+    scheduleHead?: string;
 }
 //#endregion
 
@@ -103,7 +109,7 @@ interface WeatherForcastOptions {
     /**
      * 天气预报气温图移动时间间隔 每秒
      */
-    chartMovePerSecond: number;
+    chartMoveSeconds: number;
 
     /**
      * 显示的类型
@@ -130,4 +136,13 @@ export default interface PaperOptions {
     headFullNameMap: stringObj;
 }
 
-export { PicturePaperOptions, CoursesOptions, ExtraCourseOption, TimeBarOptions, EventTimerOptions, HotboardOptions, WeatherForcastOptions }
+export {
+    PicturePaperOptions,
+    CoursesOptions,
+    ExtraCourseOption,
+    TimeBarOptions,
+    EventTimerOptions,
+    TimerEventOptions,
+    HotboardOptions,
+    WeatherForcastOptions
+}

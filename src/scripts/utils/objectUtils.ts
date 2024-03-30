@@ -1,9 +1,30 @@
 import { stringObj } from "./typeUtils";
 
-function mergeObjFrom(target: stringObj, source: stringObj, defaultObj: stringObj | undefined = undefined) {
+function mergeObjFrom(target: stringObj, source: stringObj, defaultObj?: stringObj) {
     const sourceKeys = Object.keys(source);
 
     sourceKeys.forEach(key => {
+        mergeObjProp(target, source, key, defaultObj);
+    });
+
+    // 删除非默认配置的缺省值
+    const targetKeys = Object.keys(target);
+    targetKeys.forEach(key => {
+        if (source[key] !== undefined) {
+            return;
+        }
+
+        if (defaultObj && defaultObj[key]) {
+            mergeObjProp(target, defaultObj, key, defaultObj);
+            return;
+        }
+
+        target[key] = undefined;
+    });
+
+    return target;
+
+    function mergeObjProp(target: stringObj, source: stringObj, key: string, defaultObj?: stringObj) {
         const targetData = target[key];
         const sourceData = source[key];
 
@@ -12,11 +33,7 @@ function mergeObjFrom(target: stringObj, source: stringObj, defaultObj: stringOb
             return;
         }
 
-        if (typeof targetData !== typeof sourceData) {
-            return;
-        }
-
-        if (targetData === sourceData) {
+        if (typeof targetData !== typeof sourceData || targetData === sourceData) {
             return;
         }
 
@@ -30,33 +47,12 @@ function mergeObjFrom(target: stringObj, source: stringObj, defaultObj: stringOb
             const defaultData = defaultObj ? defaultObj[key] : undefined;
             mergeObjFrom(targetData, sourceData, defaultData);
         } else {
-            target[key] = clone(sourceData);
+            target[key] = sourceData;
         }
-    });
-
-    // 删除非默认配置的值
-    const targetKeys = Object.keys(target);
-    targetKeys.forEach(key => {
-        if (source[key] !== undefined) {
-            return;
-        }
-
-        if (defaultObj) {
-            const defaultData = defaultObj[key];
-
-            if (defaultData !== undefined) {
-                target[key] = clone(defaultData);
-                return;
-            }
-        }
-
-        target[key] = undefined;
-    });
-
-    return target;
+    }
 }
 
-function mergeArrayFrom(target: any[], source: any[], defaultArray: any[]) {
+function mergeArrayFrom(target: any[], source: any[], defaultArray?: any[]) {
     const targetLen = target.length;
     const sourceLen = source.length;
 
@@ -65,67 +61,32 @@ function mergeArrayFrom(target: any[], source: any[], defaultArray: any[]) {
     }
 
     for (let i = 0; i < sourceLen; i++) {
-        const element = source[i];
+        const sourceElem = source[i];
 
         if (i >= targetLen) {
-            target.push(clone(element));
+            target.push(clone(sourceElem));
         } else {
-            if (Array.isArray(element) || typeof element == "object") {
+            if (Array.isArray(sourceElem) || typeof sourceElem == "object") {
                 const defaultElem = defaultArray ? defaultArray[i] : undefined;
 
-                mergeObjFrom(target[i], element, defaultElem);
-            } else if (target[i] !== element) {
-                target[i] = clone(element);
+                mergeObjFrom(target[i], sourceElem, defaultElem);
+            } else if (target[i] !== sourceElem) {
+                target[i] = clone(sourceElem);
             }
         }
-    }
-}
-
-function clone(target: any) {
-    if (Array.isArray(target)) {
-        return cloneArray(target);
-    } else if (typeof target === "object") {
-        return cloneObject(target);
     }
 
     return target;
 }
 
-function cloneObject(target: stringObj) {
-    const result: stringObj = {};
-
-    const keys = Object.keys(target);
-    keys.forEach(key => {
-        const element = target[key];
-
-        if (Array.isArray(element)) {
-            result[key] = cloneArray(element);
-        } else if (typeof element === "object") {
-            result[key] = cloneObject(element);
-        } else {
-            result[key] = element
-        }
-    });
-
-    return result;
-}
-
-function cloneArray(target: any[]) {
-    const result: any[] = [];
-
-    for (let i = 0, len = target.length; i < len; i++) {
-        const element = target[i];
-
-        if (Array.isArray(element)) {
-            result[i] = cloneArray(element);
-        } else if (typeof element === "object") {
-            result[i] = cloneObject(element);
-        } else {
-            result[i] = element;
-        }
+function clone(target: any) {
+    if (Array.isArray(target)) {
+        return mergeArrayFrom([], target);
+    } else if (typeof target === "object") {
+        return mergeObjFrom({}, target);
     }
 
-    return result;
+    return target;
 }
 
-export { mergeObjFrom, mergeArrayFrom, clone, cloneObject, cloneArray };
+export { mergeObjFrom, mergeArrayFrom, clone };

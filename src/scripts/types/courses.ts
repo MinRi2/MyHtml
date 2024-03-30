@@ -1,4 +1,7 @@
-import { DayName, TimeSchedule, ValidTimeSchedule, checkIntervalOrOver, dayStringMap, getSchoolDate, getSchoolWeek, toDate } from "../utils/dateUtils";
+import { reactive } from "vue";
+import { DayName, TimeSchedule, ValidTimeSchedule, dayStringMap } from "../utils/dateUtils";
+import { stringObj } from "../utils/typeUtils";
+import * as chroma from "chroma-js";
 
 enum CourseShowOn {
     odd = "odd",
@@ -128,9 +131,7 @@ class DaySchedule {
         });
     }
 
-    setSchedule(data: DayScheduleData) {
-        const courses = Course.toCourses(data);
-
+    public setCourses(courses: Course[]) {
         this.courseArray.splice(0, this.courseArray.length);
         this.courseArray.push(...courses);
 
@@ -180,7 +181,47 @@ class Course {
     }
 }
 
-const daySchedules = dayStringMap.map(dayName => new DaySchedule(dayName));
+class CoursesData {
+    public courseColorMap: stringObj;
+    public courseFullNameMap: stringObj;
+    public headFullNameMap: stringObj;
+    public daySchedules = reactive(dayStringMap.map(dayName => new DaySchedule(dayName)));
+
+    public getCourseColor(courseName: string, random: boolean = true) {
+        if (!this.courseColorMap) {
+            return random ? chroma.random().hex() : "";
+        }
+
+        const firstChar = courseName[0];
+        return this.courseColorMap[courseName] ??
+            this.courseColorMap[firstChar] ??
+            (random ? chroma.random().hex() : "");
+    }
+
+    public getCourseFullName(courseName: string) {
+        if (!this.courseFullNameMap) {
+            return courseName;
+        }
+
+        const firstChar = courseName[0];
+        return this.courseFullNameMap[courseName] ??
+            this.courseFullNameMap[firstChar] ??
+            courseName;
+    }
+
+    public getHeadFullName(headName: string) {
+        if (!this.headFullNameMap) {
+            return headName;
+        }
+
+        const firstChar = headName[0];
+        return this.headFullNameMap[headName] ??
+            this.headFullNameMap[firstChar] ??
+            headName;
+    }
+}
+
+const coursesData = new CoursesData();
 
 export { DaySchedule, Course }
-export { CourseShowOn, daySchedules }
+export { CourseShowOn, coursesData }

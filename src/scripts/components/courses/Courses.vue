@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { computed, inject, onMounted, reactive, ref, watch, watchEffect } from 'vue';
+import { computed, onMounted, ref, toValue, watch, watchEffect } from 'vue';
 import { CoursesOptions, ExtraCourseOption } from '../../paperOptions';
 import CourseCell from './CourseCell.vue'
-import { daySchedules } from '../../types/courses';
+import { Course, coursesData } from '../../types/courses';
 import * as animations from '../../utils/animations';
-import * as chroma from 'chroma-js';
-import { TimeInterval, getSchoolDate, toDate, dayStringMap, getSchoolWeek } from '../../utils/dateUtils';
-import { stringObj } from '../../utils/typeUtils';
+import { TimeInterval, getSchoolDate, toDate, dayStringMap, getSchoolWeek, DayName } from '../../utils/dateUtils';
+import { clone } from '../../utils/objectUtils';
 
 const { options } = defineProps<{
     options: CoursesOptions
 }>();
-
-const courseColorMap = inject<stringObj>("courseColorMap");
+const { daySchedules } = coursesData;
 
 const dayElem = ref<HTMLElement>(), weekElem = ref<HTMLElement>();
 
@@ -20,11 +18,11 @@ const showDay = ref(0);
 const offsetDay = computed(() => {
     const today = getSchoolDate().getDay();
 
-    let offsetDay = (showDay.value == 0 ? daySchedulesReact.length + 1 : showDay.value) - today;
+    let offsetDay = (showDay.value == 0 ? daySchedules.length + 1 : showDay.value) - today;
     return offsetDay = offsetDay > 7 ? 0 : offsetDay;
 });
-const daySchedulesReact = reactive(daySchedules);
-const todaySchedule = computed(() => daySchedulesReact[showDay.value]);
+
+const todaySchedule = computed(() => daySchedules[showDay.value]);
 const courseArray = computed(() => todaySchedule.value.courseArray);
 
 onMounted(() => {
@@ -41,6 +39,10 @@ onMounted(() => {
     }, 1000 * 5);
 
     showDay.value = today;
+
+    watch(options, () => {
+        readOptions();
+    })
 
     watch(() => options.nextDayTime, () => {
         nextDayInterval.enable();
@@ -98,29 +100,34 @@ onMounted(() => {
     });
 });
 
-daySchedulesReact.forEach((schedule) => {
-    const dayName = schedule.dayName;
 
-    watch(options, () => {
-        const { defaultHeads, defaultSchedules, specialCourses, headsOrder } = options;
-        const daySpecial = options.daySpecials[dayName];
+function readOptions() {
+    const { defaultHeads, defaultSchedules, daySpecials, headsOrder } = options;
+
+    const defaultCourses: {
+        [K in DayName]?: Course[]
+    } = {};
+
+    dayStringMap.forEach((dayName: DayName) => {
+        const daySpecial = daySpecials[dayName];
 
         if (!daySpecial) {
-            schedule.setSchedule({
+            defaultCourses[dayName] = Course.toCourses({
                 headArray: defaultHeads,
                 scheduleArray: defaultSchedules,
                 courseArray: [],
-            });
+            })
 
             return;
         }
 
-        const { extraCourses, deleteHeads, specialSchedules, courseNames, acceptDefault } = daySpecial;
+        const { extraCourses, deleteHeads, specialSchedules, defaultCourses: courseNames, acceptDefault } = daySpecial;
 
         const headArray: string[] = [],
             scheduleArray: string[] = [],
             courseArray: string[] = [];
 
+        // 处理默认课程安排
         if (acceptDefault === undefined || acceptDefault) defaultHeads.forEach((headName: string, index: number) => {
             if (deleteHeads && deleteHeads.lastIndexOf(headName) != -1) {
                 return;
@@ -134,6 +141,7 @@ daySchedulesReact.forEach((schedule) => {
             }
         });
 
+        // 处理额外课程安排
         if (extraCourses) extraCourses.forEach((extraOption: ExtraCourseOption) => {
             const { headName, schedule, courseName } = extraOption;
             if (deleteHeads && deleteHeads.lastIndexOf(headName) != -1) {
@@ -145,6 +153,7 @@ daySchedulesReact.forEach((schedule) => {
             courseArray.push(courseName);
         });
 
+        // 处理特殊课头安排
         if (specialSchedules) for (const headName in specialSchedules) {
             const schedule = specialSchedules[headName];
             if (!schedule) continue;
@@ -158,42 +167,57 @@ daySchedulesReact.forEach((schedule) => {
             scheduleArray[index] = schedule;
         }
 
-        schedule.setSchedule({
+        const courses = defaultCourses[dayName] = Course.toCourses({
             headArray: headArray,
             scheduleArray: scheduleArray,
             courseArray: courseArray,
         });
 
+        // 处理课头顺序
         if (headsOrder) for (const headName in headsOrder) {
             const order = headsOrder[headName];
 
-            if (order === undefined) return;
+            if (!order) return;
 
-            schedule.setOrder(headName, order);
+            const course = courses.find(course => course.headName === headName);
+            if (course) {
+                course.order = order;
+            }
+        }
+    });
+
+    daySchedules.forEach((schedule) => {
+        const dayName = schedule.dayName;
+
+        // 添加默认课程
+        const courses = defaultCourses[dayName];
+        schedule.setCourses(courses!);
+
+        const daySpecial = daySpecials[dayName];
+        if (!daySpecial) {
+            return;
         }
 
-    }, { deep: true });
-});
-
-function getCourseShadowColor(courseName: string) {
-    if (!courseName || !courseColorMap) {
-        return "";
-    }
-
-    const firstChar = courseName[0];
-    return courseColorMap[firstChar] ?? courseColorMap[courseName] ?? chroma.random().hex();
+        // 处理换课
+        const acceptDay: DayName | undefined = daySpecial.acceptDay;
+        if (acceptDay) {
+            const acceptCourses = defaultCourses[acceptDay];
+            if (acceptCourses) {
+                schedule.setCourses(acceptCourses);
+            }
+        }
+    });
 }
 </script>
 
 <template>
     <div class="day" ref="dayElem"></div>
-    <CourseCell v-for="course in courseArray" :course="course" :offsetDay="offsetDay"
-        :getCourseShadowColor="getCourseShadowColor">
+    <CourseCell v-for="course in courseArray" :course="course" :offsetDay="offsetDay">
     </CourseCell>
     <div class="week" ref="weekElem"></div>
 </template>
 
-<style>
+<style scoped>
 .week,
 .day {
     color: white;
