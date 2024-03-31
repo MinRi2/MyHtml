@@ -77,7 +77,7 @@ function readOptions() {
 
         if (!courseName || courseName == "") return;
 
-        let barHeadName = coursesData.getHeadFullName(courseName);
+        let barHeadName = coursesData.getHeadFullName(headName);
         let barCourseName = coursesData.getCourseFullName(courseName);
         let barColor = coursesData.getCourseColor(courseName);
 
