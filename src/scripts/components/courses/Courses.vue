@@ -50,6 +50,7 @@ onMounted(() => {
 
     watch(() => options.showDay, customShowDay => {
         if (!customShowDay) {
+            showDay.value = today;
             return;
         }
 

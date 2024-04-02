@@ -177,9 +177,9 @@ function readOptions() {
             const scheduleCourse = todaySchedule.getCourse(scheduleHead);
 
             if (scheduleCourse) {
-                const { courseName, schedule } = scheduleCourse;
+                const { headName, courseName, schedule } = scheduleCourse;
 
-                name = format(name, courseName);
+                name = name ? format(name, courseName) : headName;
                 startDate = schedule.startTime;
                 endDate = schedule.endTime;
                 color = coursesData.getCourseColor(courseName);

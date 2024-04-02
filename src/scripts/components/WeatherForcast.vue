@@ -45,8 +45,6 @@ onMounted(() => {
     chartMoveInterval.enable();
 
     watchEffect(() => {
-        console.log(options.chartMoveSeconds);
-
         chartMoveInterval.setInterval(options.chartMoveSeconds * 1000);
     });
 
