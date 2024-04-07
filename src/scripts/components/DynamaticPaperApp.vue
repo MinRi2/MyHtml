@@ -14,6 +14,7 @@ import { ElementGroup, GroupedElement } from "../types/elementGroup";
 import { coursesData } from "../types/courses";
 
 const defaultOptions: PaperOptions = {
+    dateOffsetSeconds: 0,
     weekStartDate: "",
 
     picturePaper: {
@@ -68,11 +69,7 @@ coursesData.courseFullNameMap = options.courseFullNameMap;
 coursesData.courseColorMap = options.courseColorMap;
 
 watchEffect(() => {
-    const offset = options.dateOffset;
-
-    if (!offset) return;
-
-    dateOffset.value = offset;
+    dateOffset.value = (options.dateOffsetSeconds ?? 0) * 1000;
 });
 
 watchEffect(() => {

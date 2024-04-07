@@ -504,6 +504,7 @@ function stringToDate(str: string, dateTimeSplit: string = " ", dateSplit: strin
  */
 function getSchoolDate(offset = dateOffset.value) {
     const nowDate = new Date();
+
     return new Date(+nowDate + offset);
 }
 

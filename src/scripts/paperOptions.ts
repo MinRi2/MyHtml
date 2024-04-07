@@ -121,7 +121,7 @@ interface WeatherForcastOptions {
 }
 
 export default interface PaperOptions {
-    dateOffset?: number;
+    dateOffsetSeconds?: number;
     weekStartDate: string;
 
     picturePaper: PicturePaperOptions;

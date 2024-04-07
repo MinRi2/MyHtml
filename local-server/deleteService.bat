@@ -1,0 +1,3 @@
+sc delete dynmaticpaperlocalserver.exe
+echo Delete successfully
+pause

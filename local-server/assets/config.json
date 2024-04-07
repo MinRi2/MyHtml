@@ -1,6 +1,7 @@
 // 样例供参考
 // 2023/3/24
 {
+    "dateOffsetSeconds": 0,
     "weekStartDate": "2024/2/27",
     "picturePaper": {
         "enableUnsplash": false,

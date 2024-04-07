@@ -41,18 +41,20 @@
 <h3>1. 启动本机服务器</h3>
 
 <h4>安装NodeJs <img width=60 src=/assets/icons/nodejs.svg></h4>
-    前往 [NodeJsDownload] 官方网站下载并安装
+
+前往 [NodeJsDownload] 官方网站下载并安装
 
 * <h5>手动启动</h5>
-    在 [local-server] 目录下 双击运行[setupService.bat]
+
+    双击运行 [startServer]
 
 * <h5>设置自启动</h5>
-    在 [local-server] 目录下 双击运行[setupService.bat]
+
+    用管理员运行 [setupService]
 
 > [!NOTE]\
 > 自启动会注册一个 `dynmaticpaperlocalserver.exe` 的windows服务，用以实现自启动
-> 如果需要删除服务 以管理员身份运行命令行`cmd`
-> 执行指令 ```sc delete dynmaticpaperlocalserver.exe``` 即可
+> 用管理员执行 [deleteService] 即可
 
 <h3>2. 使用动态壁纸软件</h3>
 
@@ -77,7 +79,8 @@
 [Unsplash]: https://unsplash.com/
 [GPL-3.0]: ./LICENSE
 [local-server]: ./local-server/
-[setupService.bat]: ./local-server/setupService.bat
-[startServer.bat]: ./local-server/startServer.bat
+[deleteService]: ./local-server/deleteService.bat
+[setupService]: ./local-server/setupService.bat
+[startServer]: ./local-server/startServer.bat
 [NodeJsDownload]: https://nodejs.cn/download/
 [configDocument.md]: ./configDocument.md
