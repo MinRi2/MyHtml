@@ -122,15 +122,19 @@ function readOptions() {
             return;
         }
 
-        const { extraCourses, deleteHeads, specialSchedules, defaultCourses: courseNames, acceptDefault } = daySpecial;
+        const { extraCourses, deleteHeads, specialSchedules, defaultCourses: courseNames, acceptCoursesOnly } = daySpecial;
 
         const headArray: string[] = [],
             scheduleArray: string[] = [],
             courseArray: string[] = [];
 
         // 处理默认课程安排
-        if (acceptDefault === undefined || acceptDefault) defaultHeads.forEach((headName: string, index: number) => {
-            if (deleteHeads && deleteHeads.lastIndexOf(headName) != -1) {
+        defaultHeads.forEach((headName: string, index: number) => {
+            if (deleteHeads && deleteHeads.includes(headName)) {
+                return;
+            }
+
+            if (acceptCoursesOnly && !acceptCoursesOnly.includes(headName)) {
                 return;
             }
 
@@ -146,6 +150,10 @@ function readOptions() {
         if (extraCourses) extraCourses.forEach((extraOption: ExtraCourseOption) => {
             const { headName, schedule, courseName } = extraOption;
             if (deleteHeads && deleteHeads.lastIndexOf(headName) != -1) {
+                return;
+            }
+
+            if (acceptCoursesOnly && !acceptCoursesOnly.includes(headName)) {
                 return;
             }
 

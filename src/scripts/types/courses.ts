@@ -78,14 +78,7 @@ class DaySchedule {
      * @returns {Course}
      */
     getCourse(headName: string) {
-        const course = this.courseArray.find(c => c.headName == headName);
-
-        if (course == null) {
-            console.warn(`${this.dayName} don't have a course whose headName is: ${headName}`);
-            return null;
-        }
-
-        return course;
+        return this.courseArray.find(c => c.headName == headName);
     }
 
     /**

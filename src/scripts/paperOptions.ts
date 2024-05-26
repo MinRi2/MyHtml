@@ -1,6 +1,6 @@
 import { BarScheduleData } from "./types/timeBar";
 import { CourseShowOn } from "./types/courses";
-import { DayName } from "./utils/dateUtils";
+import { DayName, ValidTimeSchedule } from "./utils/dateUtils";
 import { TimerEventData } from "./types/event-timer";
 import { stringObj } from "./utils/typeUtils";
 import { WeatherTypeName } from "./types/wether-forcast-board";
@@ -50,7 +50,7 @@ interface CoursesOptions {
 }
 
 interface DayScheduleOption {
-    acceptDefault?: boolean;
+    acceptCourseOnly?: string[];
     deleteHeads?: string[];
     defaultCourses?: string[];
     extraCourses?: ExtraCourseOption[];
@@ -89,6 +89,7 @@ interface HotboardOptions {
     groupSize: number;
     maxRound: number;
     updateCardPerMinute: number;
+    disableTime?: ValidTimeSchedule[];
     wenYanWen?: WenYanWenOptions;
 }
 

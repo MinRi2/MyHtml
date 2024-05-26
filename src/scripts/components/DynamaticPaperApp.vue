@@ -69,7 +69,7 @@ coursesData.courseFullNameMap = options.courseFullNameMap;
 coursesData.courseColorMap = options.courseColorMap;
 
 watchEffect(() => {
-    dateOffset.value = (options.dateOffsetSeconds ?? 0) * 1000;
+    dateOffset.value = (options.dateOffsetSeconds ?? 0) * 100;
 });
 
 watchEffect(() => {

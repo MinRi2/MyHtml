@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, Ref, ref, watch } from 'vue';
-import { dateToString, getSchoolDate, getSchoolWeek, TimeInterval } from '../utils/dateUtils';
+import { computed, onMounted, onUnmounted, Ref, ref, watch, watchEffect } from 'vue';
+import { dateToString, getSchoolDate, getSchoolWeek, TimeInterval, TimeWithinAll } from '../utils/dateUtils';
 import { BaiduHotboardData, CardData } from '../types/hotboard';
 import { GroupedElement } from '../types/elementGroup';
 import { HotboardOptions } from '../paperOptions';
@@ -26,6 +26,7 @@ const emptyData: CardData = {
 const cardElements = ref<HTMLElement[]>([]);
 
 const datas: Ref<CardData[]> = ref([]);
+const showMark = ref(false);
 
 var round = 0;
 const groupSize = computed(() => options.groupSize);
@@ -70,6 +71,7 @@ const updateCardInterval = new TimeInterval(async () => {
 
     round++;
 }, 5 * 60 * 1000, false);
+var disableInterval: TimeWithinAll;
 
 onMounted(() => {
     updateCardInterval.enable();
@@ -81,6 +83,25 @@ onMounted(() => {
 
     watch(() => hotboardElement.value?.visible, visible => {
         updateCardInterval.enabled = visible ?? false;
+    });
+
+    watchEffect(() => {
+        if (disableInterval) disableInterval.disable();
+
+        if (!options.disableTime) {
+            return;
+        }
+
+        console.log(options.disableTime);
+
+
+        disableInterval = new TimeWithinAll({
+            schedule: options.disableTime,
+            interval: 60 * 1000,
+            waitCons: () => showMark.value = false,
+            withinCons: () => showMark.value = true,
+            overCons: () => showMark.value = false,
+        })
     });
 });
 
@@ -187,7 +208,9 @@ function wenYanWenCard() {
     </div>
 
     <div class="container board_body">
-        <div class="mark">
+        <div class="mark" :style="{
+            opacity: showMark ? 1 : 0
+        }">
             考试期间
             <br>
             热搜榜暂闭
@@ -263,6 +286,8 @@ function wenYanWenCard() {
     width: 100%;
     height: 100%;
     opacity: 0;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
 
     color: #ff4d4d;
     text-align: center;

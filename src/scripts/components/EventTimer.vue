@@ -183,6 +183,9 @@ function readOptions() {
                 startDate = schedule.startTime;
                 endDate = schedule.endTime;
                 color = coursesData.getCourseColor(courseName);
+            } else {
+                console.warn(`Course: '${scheduleHead}' is undefined. Ignored it.`)
+                return;
             }
         }
 
@@ -213,36 +216,36 @@ function readOptions() {
     <div class="container">
         <div class="timer_block" v-if="showDay">
             <div class="cutbox" ref="cutboxDay" :style="{
-            transform: `translate(0, ${dayPercent}%)`,
-            background: `#ff82829e`,
-        }"></div>
+                transform: `translate(0, ${dayPercent}%)`,
+                background: `#ff82829e`,
+            }"></div>
             <h1 ref="timerDay">{{ displayDay }}</h1>
             <h2>天</h2>
         </div>
 
         <div class="timer_block" v-if="showHour">
             <div class="cutbox" ref="cutboxHour" :style="{
-            transform: `translate(0, ${hourPercent}%)`,
-            background: `#93ff829e`,
-        }"></div>
+                transform: `translate(0, ${hourPercent}%)`,
+                background: `#93ff829e`,
+            }"></div>
             <h1 ref="timerHour">{{ displayHour }}</h1>
             <h2>时</h2>
         </div>
 
         <div class="timer_block" v-if="showMinute">
             <div class="cutbox" ref="cutboxMinute" :style="{
-            transform: `translate(0, ${minutePercent}%)`,
-            background: `#82c8ff9e`,
-        }"></div>
+                transform: `translate(0, ${minutePercent}%)`,
+                background: `#82c8ff9e`,
+            }"></div>
             <h1 ref="timerMinute">{{ displayMinute }}</h1>
             <h2>分</h2>
         </div>
 
         <div class="timer_block" v-if="showSecond">
             <div class="cutbox" ref="cutboxSecond" :style="{
-            transform: `translate(0, ${secondPercent}%)`,
-            background: `#00bcd49e`,
-        }"></div>
+                transform: `translate(0, ${secondPercent}%)`,
+                background: `#00bcd49e`,
+            }"></div>
             <h1 ref="timerSecond">{{ displaySecond }}</h1>
             <h2>秒</h2>
         </div>
