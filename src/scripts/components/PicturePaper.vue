@@ -26,7 +26,7 @@ var fetchCount = 60;
 
 const randomParams: RandomParams = {
     count: 5,
-    topicIds: [Topics.nature, Topics.animals],
+    topicIds: [Topics.nature],
 }
 
 const imageParams = new URLSearchParams({
@@ -121,6 +121,8 @@ function preloadImage(url: string) {
 
 <template>
     <div class="background" :style="{
-        background: `url(${imageUrl})`
+        background: `url(${imageUrl})`,
+        backgroundSize: '100%',
+        backgroundRepeat: 'no-repeat',
     }"></div>
 </template>

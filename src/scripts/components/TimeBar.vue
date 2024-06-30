@@ -212,12 +212,12 @@ function addBarSchedules(barScheduleArray: BarSchedule[]) {
 
 .bar {
     padding: 16px;
-    width: 550px;
+    width: 15em;
 }
 
 .bar h1 {
     font-weight: normal;
-    font-size: 2em;
+    font-size: 1.5em;
     text-shadow:
         1px 1px 3px var(--text-shadow-color),
         4px 4px 3px var(--text-shadow-color);
@@ -225,6 +225,7 @@ function addBarSchedules(barScheduleArray: BarSchedule[]) {
 
 .bar h2 {
     font-weight: normal;
+    font-size: 1em;
     text-shadow:
         1px 1px 3px var(--text-shadow-color),
         4px 4px 3px var(--text-shadow-color);

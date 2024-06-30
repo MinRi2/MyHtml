@@ -17,6 +17,8 @@ var dayInterval = new TimeInterval(refreshDay, 1000, false);
 onMounted(() => {
     dateInterval.enable();
     dayInterval.enable();
+
+    dateInterval.run();
 });
 
 onUnmounted(() => {
@@ -104,13 +106,12 @@ function fixed(num: number): string {
     align-items: end;
     margin: 10px;
     color: white;
-    font-size: 80px;
 }
 
 .date_block h1 {
     display: inline-block;
 
-    font-size: 1em;
+    font-size: 0.8em;
     font-weight: normal;
     text-shadow:
         1px 1px 3px #729ece,
@@ -132,7 +133,7 @@ function fixed(num: number): string {
 }
 
 .time_clock {
-    width: 800px;
+    width: 8em;
     aspect-ratio: 10/3;
 }
 
@@ -157,8 +158,8 @@ function fixed(num: number): string {
 
 .time_clock .splitter {
     position: relative;
-    width: 64px;
-    --dot-size: 30px;
+    width: 0.5em;
+    --dot-size: 0.25em;
 }
 
 .time_clock .splitter::before {
@@ -201,7 +202,7 @@ function fixed(num: number): string {
     transform-origin: center;
 
     color: white;
-    font-size: 130px;
+    font-size: 1.25em;
     text-shadow:
         1px 1px 3px #2a2a2a,
         3px 3px 3px #2a2a2a,
@@ -220,7 +221,7 @@ function fixed(num: number): string {
     backdrop-filter: blur(8px);
 
     color: white;
-    font-size: 60px;
+    font-size: 0.5em;
     text-align: center;
     text-shadow:
         1px 1px 3px #2a2a2a,

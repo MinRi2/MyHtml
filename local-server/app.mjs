@@ -33,10 +33,18 @@ app.ws("/config", function (ws, req) {
 });
 
 app.get("/hotboard", async function (req, res) {
-    const response = await fetch("https://top.baidu.com/api/board?platform=wise&tab=realtime");
-    const json = await response.json();
+    let result;
 
-    res.send(json);
+    try{
+        const response = await fetch("https://top.baidu.com/api/board?platform=wise&tab=realtime");
+        result = await response.json();
+    }catch(e){
+        console.warn(e);
+        res.send(null);
+        return;
+    }
+
+    res.send(result);
 });
 
 app.listen(port, () => {

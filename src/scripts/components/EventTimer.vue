@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TimerEvent, TimerEventData } from '../types/event-timer';
+import { TimerEvent } from '../types/event-timer';
 import { getSchoolDate, dateToString, TimeInterval, dayStringMap } from '../utils/dateUtils';
 import * as animations from "../utils/animations";
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
@@ -178,8 +178,10 @@ function readOptions() {
 
             if (scheduleCourse) {
                 const { headName, courseName, schedule } = scheduleCourse;
+                const courseFullName = coursesData.getCourseFullName(courseName);
+                const headFullName = coursesData.getHeadFullName(headName);
 
-                name = name ? format(name, courseName) : headName;
+                name = name ? format(name, courseFullName, headFullName) : courseFullName;
                 startDate = schedule.startTime;
                 endDate = schedule.endTime;
                 color = coursesData.getCourseColor(courseName);
@@ -276,7 +278,7 @@ function readOptions() {
         -5px -5px 5px rgba(255, 255, 255, 0.5) inset;
 
     font-weight: normal;
-    font-size: 70px;
+    font-size: 1em;
 
     text-shadow:
         3px 3px 3px var(--text-shadow-color),
@@ -291,7 +293,7 @@ function readOptions() {
 
     margin: 5px;
 
-    font-size: 35px;
+    font-size: 0.55em;
     font-weight: normal;
     text-shadow:
         3px 3px 3px var(--text-shadow-color),
@@ -305,7 +307,7 @@ function readOptions() {
 
     margin: 5px;
 
-    font-size: 30px;
+    font-size: 0.5em;
     font-weight: normal;
     text-shadow:
         3px 3px 3px var(--text-shadow-color),
@@ -330,7 +332,7 @@ function readOptions() {
     position: relative;
 
     color: white;
-    width: 180px;
+    width: 2.5em;
     aspect-ratio: 1/1;
     margin: 10px;
     background-color: rgba(255, 255, 255, 0.2);
@@ -355,7 +357,7 @@ function readOptions() {
     margin: 0;
     padding: 0;
 
-    font-size: 75px;
+    font-size: 1em;
     text-shadow:
         1px 1px 3px #2a2a2a,
         3px 3px 3px #2a2a2a,
@@ -374,7 +376,7 @@ function readOptions() {
     background-color: rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(8px);
 
-    font-size: 45px;
+    font-size: 0.5em;
     text-align: center;
     text-shadow:
         1px 1px 3px #2a2a2a,

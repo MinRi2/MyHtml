@@ -19,6 +19,11 @@ class Disable {
         this.enabled = false;
     }
 
+    public restart(){
+        this.disable();
+        this.enable();
+    }
+
     protected onEnabled() {
     }
     protected onDisabled() { }

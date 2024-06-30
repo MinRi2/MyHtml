@@ -93,7 +93,6 @@ onUnmounted(() => {
     justify-content: center;
     align-items: stretch;
 
-    font-size: 75px;
     padding: 0px 4px;
 }
 

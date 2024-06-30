@@ -121,7 +121,21 @@ interface WeatherForcastOptions {
     show7dWithin: string[];
 }
 
+//#region 
+interface StyleOptions {
+    courses?: string;
+    timer?: string;
+    timeBar?: string;
+    clock?: string;
+    hotboard: {
+        width?: string;
+        fontSize?: string;
+    };
+    weatherBoard?: string;
+}
+
 export default interface PaperOptions {
+    style: StyleOptions;
     dateOffsetSeconds?: number;
     weekStartDate: string;
 

@@ -159,7 +159,7 @@ onUnmounted(() => {
     color: #eee;
 
     margin: 8px;
-    font-size: 60px;
+    font-size: 1em;
 
     text-shadow:
         1px 1px 3px #2a2a2a,
@@ -170,7 +170,7 @@ onUnmounted(() => {
 
 .board_title h2 {
     color: #121212;
-    font-size: 16px;
+    font-size: 0.3em;
 }
 
 .board_title img {

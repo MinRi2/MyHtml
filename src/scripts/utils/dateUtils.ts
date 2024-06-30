@@ -325,6 +325,14 @@ class TimeInterval extends Disable {
         this.fn();
     }
 
+    public restart(run: boolean = true): void {
+        super.restart();
+
+        if(run){
+            this.run();
+        }
+    }
+
     public setInterval(interval: number) {
         this.interval = interval;
 

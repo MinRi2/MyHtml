@@ -40,37 +40,7 @@ const maxRound = computed(() => {
 
 const lastUpdateDate = ref(getSchoolDate());
 
-const updateCardInterval = new TimeInterval(async () => {
-    if (!datas.value || round >= maxRound.value) {
-        await refreshData();
-
-        if (!datas.value) {
-            return;
-        }
-    }
-
-    if (round >= maxRound.value) {
-        round = 0;
-    }
-
-    const roundIndex = round * groupSize.value;
-
-    cardElements.value.forEach((card, index) => {
-        const cardDataIndex = roundIndex + index;
-
-        if (cardDataIndex >= datas.value.length) {
-            setCardData(card, index, emptyData);
-            return;
-        }
-
-        const data = datas.value[cardDataIndex];
-        setCardData(card, index, data);
-    });
-
-    wenYanWenCard();
-
-    round++;
-}, 5 * 60 * 1000, false);
+const updateCardInterval = new TimeInterval(() => updateCard(), 5 * 60 * 1000, false);
 var disableInterval: TimeWithinAll;
 
 onMounted(() => {
@@ -141,6 +111,38 @@ function setCardData(card: HTMLElement, cardIndex: number, data: CardData) {
     })
 }
 
+async function updateCard() {
+    if (!datas.value || round >= maxRound.value) {
+        await refreshData();
+
+        if (!datas.value) {
+            return;
+        }
+    }
+
+    if (round >= maxRound.value) {
+        round = 0;
+    }
+
+    const roundIndex = round * groupSize.value;
+
+    cardElements.value.forEach((card, index) => {
+        const cardDataIndex = roundIndex + index;
+
+        if (cardDataIndex >= datas.value.length) {
+            setCardData(card, index, emptyData);
+            return;
+        }
+
+        const data = datas.value[cardDataIndex];
+        setCardData(card, index, data);
+    });
+
+    wenYanWenCard();
+
+    round++;
+}
+
 async function refreshData() {
     const response = await fetch(baiduHotboardApi);
     const hotboardData: BaiduHotboardData = await response.json();
@@ -198,7 +200,7 @@ function wenYanWenCard() {
 <template>
     <div class="container board_title">
         <img src="../../images/hot.png">
-        <h1>今日热搜</h1>
+        <h1 @click="updateCardInterval.restart()">今日热搜</h1>
 
         <div class="container info_wrapper">
             <h2>数据来源：百度热搜</h2>
@@ -238,17 +240,17 @@ function wenYanWenCard() {
 }
 
 .board_title img {
-    width: 50px;
+    width: 1em;
     aspect-ratio: 1/1;
 }
 
 .board_title h1,
 .board_title h2 {
-    font-size: 60px;
+    font-size: 1em;
 }
 
 .board_title h2 {
-    font-size: 30px;
+    font-size: 0.5em;
     color: #121212;
 }
 
@@ -291,7 +293,7 @@ function wenYanWenCard() {
 
     color: #ff4d4d;
     text-align: center;
-    font-size: 110px;
+    font-size: 2em;
     z-index: 100;
 
     transition: all 3s ease-in-out;
@@ -319,6 +321,9 @@ function wenYanWenCard() {
 .board_body .card .image_wrapper {
     position: relative;
 
+    width: 3.5em;
+    aspect-ratio: 150/130;
+
     border-radius: 30px;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4),
         4px 4px 4px rgba(0, 0, 0, 0.2);
@@ -328,29 +333,31 @@ function wenYanWenCard() {
 }
 
 .board_body .card img {
-    width: 150px;
-    height: 130px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .board_body .card .index {
     position: absolute;
     top: 0;
 
-    width: 45px;
-    height: 40px;
+    width: 1.5em;
+    aspect-ratio: 3/2;
+
     background: #f60;
     border-bottom-right-radius: 20px;
 
     color: white;
     text-align: center;
-    font-size: 40px;
+    font-size: 0.75em;
 }
 
 .board_body .card .title {
     flex: 1;
     margin: 0px 8px;
     color: black;
-    font-size: 60px;
+    font-size: 1em;
     text-shadow:
         -1px -1px 1px #F3EEEA,
         1px 1px 1px #776B5D;
@@ -366,7 +373,7 @@ function wenYanWenCard() {
     filter: blur(1.5px);
 
     color: #f60;
-    font-size: 35px;
+    font-size: 0.5em;
     z-index: 0;
 }
 </style>

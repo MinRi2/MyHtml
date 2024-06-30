@@ -9,7 +9,7 @@ const cityAdCode = 101301101;
 const hefengWeatherApi = 'https://devapi.qweather.com';
 
 const maxShow = 3;
-const textSize = 45, iconSize = textSize * 2;
+const textSize = 25, iconSize = textSize * 2;
 const iconPath = "./images/weather"
 const weatherIconIds = [
     100, 101, 102, 103, 104, 150, 151, 152, 153,
@@ -285,6 +285,7 @@ class WeatherChartType<DataType extends object> {
     }
 
     async refreshData(hefengKey: string) {
+        console.log(`${hefengWeatherApi}/v7/weather/${this.name}?key=${hefengKey}&location=${cityAdCode}`)
         const response = await fetch(`${hefengWeatherApi}/v7/weather/${this.name}?key=${hefengKey}&location=${cityAdCode}`);
 
         this.data = await response.json();
