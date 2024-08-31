@@ -72,12 +72,12 @@ const maxRound = computed(() => {
 const lastUpdateDate = ref(getSchoolDate());
 
 const updateCardInterval = new TimeInterval(() => updateCard(), 5 * 60 * 1000, false, false, true);
-const updateProgressInterval = new TimeInterval(() => updateProgress(), 10 * 3000, false);
+const updateProgressInterval = new TimeInterval(() => updateProgress(), 10 * 1000, false);
 var disableInterval: TimeWithinAll;
 
 const updateManuallyDeb = useDebounce(() => {
     updateCardInterval.restart();
-}, 3000);
+}, 1500);
 
 onMounted(() => {
     updateCardInterval.enable();
