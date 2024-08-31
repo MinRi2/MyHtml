@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { Ref, ref } from "vue";
 import { Disable } from "./typeUtils";
 
 const dateOffset = ref(0); // 学校时间偏移 ms
@@ -303,12 +303,14 @@ class TimeWithinTasks extends Disable {
 
 class TimeInterval extends Disable {
     private intervalId: any;
+    private lastRunDate: Ref<number>;
 
     constructor(
-        public fn: () => void,
+        private fn: () => any,
         private interval: number,
         enable: boolean = true,
-        run: boolean = false,
+        runImmediately: boolean = false,
+        private recordProgress = false,
     ) {
         super();
 
@@ -316,19 +318,27 @@ class TimeInterval extends Disable {
             this.enable();
         }
 
-        if (run) {
-            fn();
+        if (this.recordProgress) {
+            this.lastRunDate = ref(+getSchoolDate());
+        }
+
+        if (runImmediately) {
+            this.run();
         }
     }
 
     public run() {
-        this.fn();
+        this.fn.apply(null);
+
+        if (this.recordProgress) {
+            this.lastRunDate.value = +getSchoolDate();
+        }
     }
 
     public restart(run: boolean = true): void {
         super.restart();
 
-        if(run){
+        if (run) {
             this.run();
         }
     }
@@ -343,12 +353,23 @@ class TimeInterval extends Disable {
     }
 
     protected override onEnabled(): void {
-        this.intervalId = setInterval(this.fn, this.interval);
+        this.intervalId = setInterval(() => this.run(), this.interval);
     }
 
     protected override onDisabled(): void {
         clearInterval(this.intervalId);
     }
+
+    /**
+     * 返回进度
+     */
+    public get progress(): number {
+        if (!this.recordProgress) return -1;
+
+        const nowDate = getSchoolDate();
+        return (+nowDate - this.lastRunDate.value) / this.interval;
+    }
+
 }
 
 type DayName = '周日' | '周一' | '周二' | '周三' | '周四' | '周五' | '周六';
