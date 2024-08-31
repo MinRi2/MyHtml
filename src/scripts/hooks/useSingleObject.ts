@@ -1,14 +1,28 @@
-import { computed, reactive, ref, watch } from "vue";
+import { computed, reactive, Ref, ref, watch } from "vue";
 
 export function useSingleArray<T>(datas: T[], defaultIndex = 0) {
     const array = reactive<T[]>(datas);
     const currentIndex = ref<number>(defaultIndex);
     const currentData = computed(() => array[currentIndex.value] as T);
 
-    function nextData() {
-        const index = currentIndex.value + 1;
+    function nextData(boolf: (data: T) => boolean = null, voidCons: () => any = null) {
+        const nextIndex = currentIndex.value + 1;
 
-        currentIndex.value = index >= array.length ? 0 : index;
+        if (boolf == null) {
+            currentIndex.value = nextIndex >= array.length ? 0 : nextIndex;
+            return;
+        }
+
+        for (let i = 0; i < array.length; i++) {
+            let index = (nextIndex + i) % array.length;
+
+            if (boolf(array[index] as T)) {
+                currentIndex.value = index;
+                return;
+            }
+        }
+
+        if (voidCons) voidCons();
     }
 
     return {
@@ -19,7 +33,6 @@ export function useSingleArray<T>(datas: T[], defaultIndex = 0) {
     }
 }
 
-// useSingleObject 函数定义
 export function useSingleObject<T>(defaultKey: keyof T, dataObject: T) {
     const currentKey = ref<keyof T>(defaultKey);
 

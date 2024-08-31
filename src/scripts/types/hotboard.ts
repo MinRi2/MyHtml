@@ -11,10 +11,14 @@ interface HotboardData {
 }
 
 interface HotboardSource {
-    name: string,
+    name: ValidHotboardSource,
     url: string,
-    maxRound: number,
+
+    disable?: boolean,
+    round: number,
 }
+
+type ValidHotboardSource = "百度热搜" | "央视国际新闻" | "央视军事新闻";
 
 const emptyData: CardData = {
     title: '',
@@ -23,4 +27,4 @@ const emptyData: CardData = {
     dateTime: '',
 }
 
-export { CardData, HotboardData, HotboardSource, emptyData };
+export { CardData, HotboardData, HotboardSource, ValidHotboardSource, emptyData };

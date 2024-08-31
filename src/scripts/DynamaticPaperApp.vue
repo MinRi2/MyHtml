@@ -8,6 +8,7 @@ import EventTimer from "./components/./EventTimer.vue";
 import Hotboard from "./components/./Hotboard.vue";
 import WeatherForcast from './components/./WeatherForcast.vue';
 import PaperOptions from "./paperOptions";
+import LazyMount from "./components/LazyMount.vue";
 import { clone, mergeObjFrom } from "./utils/objectUtils";
 import { dateOffset, TimeInterval, toDate, weekStartDate } from "./utils/dateUtils";
 import { ElementGroup, GroupedElement } from "./types/elementGroup";
@@ -59,16 +60,18 @@ const defaultOptions: PaperOptions = {
     },
     hotboard: {
         groupSize: 4,
-        maxRound: 5,
         updateCardPerMinute: 5,
-        wenYanWen: {
-            enable: false,
-            replaceIndex: 20,
-            startWeek: 2,
-            startPage: 75,
-            setpPage: 2,
-            text: [],
-        }
+        source: {
+            "百度热搜": {
+                round: 4,
+            },
+            "央视国际新闻": {
+                round: 2,
+            },
+            "央视军事新闻": {
+                round: 2,
+            },
+        },
     },
     courseColorMap: {},
     courseFullNameMap: {},
@@ -90,26 +93,6 @@ watchEffect(() => {
     const date = options.weekStartDate;
     weekStartDate.value = toDate(date);
 });
-
-const connectInterval = new TimeInterval(() => {
-    const socket = new WebSocket(`ws://${localDomin}/config`);
-
-    socket.onmessage = (event: MessageEvent<any>) => {
-        const serverOptions: PaperOptions = JSON.parse(event.data);
-
-        mergeObjFrom(options, serverOptions, defaultOptions);
-    }
-
-    socket.onclose = () => {
-        connectInterval.enable();
-    }
-
-    socket.onerror = () => {
-        connectInterval.enable();
-    }
-
-    connectInterval.disable();
-}, 3 * 1000);
 
 const hotboardContainer = ref<HTMLElement>(),
     weatherBoardContainer = ref<HTMLElement>();
@@ -140,55 +123,96 @@ onMounted(() => {
     leftBottomGroup = new ElementGroup(
         hotboardElement.value,
         [weatherElement.value]
-    )
+    );
+
+    setTimeout(() => {
+        initWsConnection();
+    }, 15 * 1000);
 });
+
+function initWsConnection() {
+    const connectInterval = new TimeInterval(() => {
+        const socket = new WebSocket(`ws://${localDomin}/config`);
+
+        socket.onmessage = (event: MessageEvent<any>) => {
+            const serverOptions: PaperOptions = JSON.parse(event.data);
+
+            mergeObjFrom(options, serverOptions, defaultOptions);
+        }
+
+        socket.onclose = () => {
+            connectInterval.enable();
+        }
+
+        socket.onerror = () => {
+            connectInterval.enable();
+        }
+
+        connectInterval.disable();
+    }, 3 * 1000);
+}
 </script>
 
 <template>
     <!-- 背景 -->
     <PicturePaper :options="options.picturePaper"></PicturePaper>
 
-    <!-- 课表 -->
-    <div class="container container_courses" :style="{
-        fontSize: style.courses
-    }">
-        <Courses :options="options.courses"></Courses>
-    </div>
+    <LazyMount delaySeconds="1">
+        <!-- 课表 -->
+        <div class="container container_courses" :style="{
+            fontSize: style.courses
+        }">
+            <Courses :options="options.courses"></Courses>
+        </div>
+    </LazyMount>
 
-    <!-- 倒计时 -->
-    <div class="container container_timer" :style="{
-        fontSize: style.timer
-    }">
-        <EventTimer :options="options.eventTimer"></EventTimer>
-    </div>
 
-    <!-- 课条 -->
-    <div class="container container_time_bar" :style="{
-        fontSize: style.timeBar
-    }">
-        <TimeBar :options="options.timeBar"></TimeBar>
-    </div>
+    <LazyMount delaySeconds="3">
+        <!-- 倒计时 -->
+        <div class="container container_timer" :style="{
+            fontSize: style.timer
+        }">
+            <EventTimer :options="options.eventTimer"></EventTimer>
+        </div>
+    </LazyMount>
 
-    <!-- 时钟 日期 -->
-    <div class="container container_clock" :style="{
-        fontSize: style.clock
-    }">
-        <Clock></Clock>
-    </div>
+    <LazyMount delaySeconds="7">
+        <!-- 课条 -->
+        <div class="container container_time_bar" :style="{
+            fontSize: style.timeBar
+        }">
+            <TimeBar :options="options.timeBar"></TimeBar>
+        </div>
+    </LazyMount>
+
+    <LazyMount delaySeconds="9">
+        <!-- 时钟 日期 -->
+        <div class="container container_clock" :style="{
+            fontSize: style.clock
+        }">
+            <Clock></Clock>
+        </div>
+    </LazyMount>
 
     <!-- 今日热搜 -->
     <div class="container container_hot_board" ref="hotboardContainer" :style="{
         width: style.hotboard.width,
         fontSize: style.hotboard.fontSize,
     }">
-        <Hotboard :options="options.hotboard" :hotboardElement="hotboardElement"></Hotboard>
+        <LazyMount delaySeconds="11">
+            <Hotboard :options="options.hotboard" :hotboardElement="hotboardElement"></Hotboard>
+        </LazyMount>
     </div>
+
+
 
     <!-- 天气预报 -->
     <div class="container container_weather_board" ref="weatherBoardContainer" :style="{
         fontSize: style.weatherBoard
     }">
-        <WeatherForcast :options="options.weather" :weatherElement="weatherElement"></WeatherForcast>
+        <LazyMount delaySeconds="13">
+            <WeatherForcast :options="options.weather" :weatherElement="weatherElement"></WeatherForcast>
+        </LazyMount>
     </div>
 </template>
 
@@ -282,9 +306,8 @@ onMounted(() => {
     width: 18em;
     font-size: 35px;
 
-    background: rgba(255, 255, 255, 0.4);
-    /* linear-gradient(to right, #729eced8, #dcdcff94),
-        radial-gradient(at center, #DCBFFF66, rgba(255, 255, 255, 0.1)); */
+    background: linear-gradient(to right, #729eced8, #dcdcff94),
+        radial-gradient(at center, #DCBFFF66, rgba(255, 255, 255, 0.1));
     backdrop-filter: blur(6px);
     border-top-right-radius: 30px;
 

@@ -36,6 +36,8 @@ app.ws("/config", function (ws, req) {
 
 app.use("/hotboard", hotboardRouter);
 
+app.use("/static", express.static('../public'));
+
 app.listen(port, () => {
     console.log(`Ready http://localhost:${port}`)
 });

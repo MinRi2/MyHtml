@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, Ref, ref, watch, watchEffect } from 'vue';
-import { dateToString, getSchoolDate, TimeInterval, TimeWithinAll } from '../utils/dateUtils';
+import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
+import { getSchoolDate, TimeInterval, TimeWithinAll } from '../utils/dateUtils';
 import { CardData, emptyData, HotboardData, HotboardSource } from '../types/hotboard';
 import { GroupedElement } from '../types/elementGroup';
 import { HotboardOptions } from '../paperOptions';
@@ -8,6 +8,7 @@ import * as animations from '../utils/animations';
 import InfoBar from './InfoBar.vue';
 import { InfoBarData } from '../types/info-bar';
 import { useSingleArray } from '../hooks/useSingleObject';
+import useDebounce from '../hooks/useDebounce';
 import { localUrl } from '../vars';
 
 const props = defineProps<{
@@ -15,7 +16,7 @@ const props = defineProps<{
     hotboardElement: GroupedElement | undefined,
 }>();
 
-const { currentData, nextData } = useSingleArray<InfoBarData & HotboardSource>([
+const { currentData: currentSource, nextData: nextSource, array: sourceDataArray } = useSingleArray<InfoBarData & HotboardSource>([
     {
         name: "百度热搜",
         color: "#1fab89",
@@ -23,7 +24,7 @@ const { currentData, nextData } = useSingleArray<InfoBarData & HotboardSource>([
         progress: 0,
 
         url: `${localUrl}/hotboard/baidu`,
-        maxRound: 1,
+        round: 4,
     },
     {
         name: "央视国际新闻",
@@ -32,7 +33,7 @@ const { currentData, nextData } = useSingleArray<InfoBarData & HotboardSource>([
         progress: 0,
 
         url: `${localUrl}/hotboard/cctv/world`,
-        maxRound: 1,
+        round: 4,
     },
     {
         name: "央视军事新闻",
@@ -41,7 +42,7 @@ const { currentData, nextData } = useSingleArray<InfoBarData & HotboardSource>([
         progress: 0,
 
         url: `${localUrl}/hotboard/cctv/military`,
-        maxRound: 1,
+        round: 4,
     }
 ]);
 
@@ -50,8 +51,9 @@ const hotboardElement = computed(() => props.hotboardElement);
 
 const cardElements = ref<HTMLElement[]>([]);
 
-const datas = ref<CardData[] | null>(null);
+const datas = ref<CardData[]>([]);
 const showMark = ref(false);
+const updatingCard = ref(false);
 
 var round = 0;
 const groupSize = computed(() => options.groupSize);
@@ -64,14 +66,18 @@ const maxRound = computed(() => {
 
     const maxDataRound = Math.ceil(dataLength / groupSize.value)
 
-    return Math.min(currentData.value.maxRound, maxDataRound);
+    return Math.min(currentSource.value.round, maxDataRound);
 });
 
 const lastUpdateDate = ref(getSchoolDate());
 
-const updateCardInterval = new TimeInterval(() => updateCard(), 60 * 1000, false, false, true);
-const updateProgressInterval = new TimeInterval(() => updateProgress(), 3 * 3000, false);
+const updateCardInterval = new TimeInterval(() => updateCard(), 5 * 60 * 1000, false, false, true);
+const updateProgressInterval = new TimeInterval(() => updateProgress(), 10 * 3000, false);
 var disableInterval: TimeWithinAll;
+
+const updateManuallyDeb = useDebounce(() => {
+    updateCardInterval.restart();
+}, 3000);
 
 onMounted(() => {
     updateCardInterval.enable();
@@ -86,6 +92,19 @@ onMounted(() => {
     watch(() => hotboardElement.value?.visible, visible => {
         updateCardInterval.enabled = visible ?? false;
     });
+
+    watch(() => options.source, sourceData => {
+        sourceDataArray.forEach(data => {
+            const { disable, round } = sourceData[data.name];
+
+            data.disable = disable;
+            data.round = round;
+
+            if (currentSource.value == data && disable) {
+                updateCard();
+            }
+        });
+    }, { deep: true });
 
     watchEffect(() => {
         if (disableInterval) disableInterval.disable();
@@ -133,15 +152,13 @@ function setCardData(card: HTMLElement, cardIndex: number, data: CardData) {
             delay: cardIndex * 600,
             easing: "cubic-bezier(0.42, 0, 0.58, 1)",
         }
-    })
+    });
 }
 
 async function updateCard() {
-    if (datas.value == null || round >= maxRound.value) {
-        if (round >= maxRound.value) {
-            round = 0;
-            nextData();
-        }
+    if (round >= maxRound.value || currentSource.value.disable) {
+        round = 0;
+        nextSource(data => !data.disable);
 
         const result = await fetchData();
 
@@ -173,12 +190,12 @@ async function updateCard() {
 
 async function fetchData() {
     try {
-        const response = await fetch(currentData.value.url);
+        const response = await fetch(currentSource.value.url);
         const hotboardData: HotboardData = await response.json();
 
         const { result, updateTime } = hotboardData;
 
-        lastUpdateDate.value = new Date(updateTime);
+        lastUpdateDate.value = updateTime ? new Date(updateTime) : getSchoolDate();
         return result;
     } catch (e) {
         return null;
@@ -186,14 +203,14 @@ async function fetchData() {
 }
 
 function updateProgress() {
-    currentData.value.progress = updateCardInterval.progress;
+    currentSource.value.progress = updateCardInterval.progress;
 }
 
 </script>
 
 <template>
-    <div class="container board_title" @click="updateCardInterval.restart()">
-        <InfoBar :data="currentData"></InfoBar>
+    <div class="container board_title" @click="!updatingCard ? updateManuallyDeb() : 0">
+        <InfoBar :data="currentSource"></InfoBar>
     </div>
 
     <div class="container board_body">
@@ -292,7 +309,7 @@ h2 {
 
     margin: 0px 8px 0px 0px;
     padding: 8px;
-    border-bottom: 1px solid #121212;
+    border-bottom: 4px solid #c6cfff;
 
     transition: all 3s ease-in-out;
 }

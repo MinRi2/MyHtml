@@ -52,7 +52,16 @@ const cctvNewsApis = {
 }
 
 router.get("/baidu", async function (req, res) {
-    const response = await fetch("https://top.baidu.com/api/board?platform=wise&tab=realtime");
+    var response;
+    try {
+        response = await fetch("https://top.baidu.com/api/board?platform=wise&tab=realtime");
+    } catch (e) {
+        res.send({
+            result: []
+        });
+        return;
+    }
+
     const { data } = await response.json();
 
     const updateTime = parseInt(data.cards[0].updateTime) * 1000;
@@ -80,7 +89,16 @@ router.get("/cctv/:newsType", async function (req, res) {
 
     const api = cctvNewsApis[newsType];
 
-    const response = await fetch(api.url);
+    var response;
+    try {
+        response = await fetch(api.url);
+    } catch (e) {
+        res.send({
+            result: []
+        });
+        return;
+    }
+
     const result = await api.handleResponse(response);
 
     if (result == null) {
