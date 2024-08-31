@@ -1,51 +1,83 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, Ref, ref, watch, watchEffect } from 'vue';
-import { dateToString, getSchoolDate, getSchoolWeek, TimeInterval, TimeWithinAll } from '../utils/dateUtils';
-import { BaiduHotboardData, CardData } from '../types/hotboard';
+import { dateToString, getSchoolDate, TimeInterval, TimeWithinAll } from '../utils/dateUtils';
+import { CardData, emptyData, HotboardData, HotboardSource } from '../types/hotboard';
 import { GroupedElement } from '../types/elementGroup';
 import { HotboardOptions } from '../paperOptions';
 import * as animations from '../utils/animations';
-import { format } from '../utils/stringUtils';
+import InfoBar from './InfoBar.vue';
+import { InfoBarData } from '../types/info-bar';
+import { useSingleArray } from '../hooks/useSingleObject';
+import { localUrl } from '../vars';
 
 const props = defineProps<{
     options: HotboardOptions,
     hotboardElement: GroupedElement | undefined,
 }>();
 
+const { currentData, nextData } = useSingleArray<InfoBarData & HotboardSource>([
+    {
+        name: "百度热搜",
+        color: "#1fab89",
+        lineaner: "linear-gradient(-225deg, #4596FB 0%, #57F2CC 48%, #D4FFEC 100%)",
+        progress: 0,
+
+        url: `${localUrl}/hotboard/baidu`,
+        maxRound: 1,
+    },
+    {
+        name: "央视国际新闻",
+        color: "#f6f7d7",
+        lineaner: "linear-gradient(to right, #e65c00 , #f9d423)",
+        progress: 0,
+
+        url: `${localUrl}/hotboard/cctv/world`,
+        maxRound: 1,
+    },
+    {
+        name: "央视军事新闻",
+        color: "#e84545",
+        lineaner: "linear-gradient(to right, #ff9569 0%, #e92758 100%)",
+        progress: 0,
+
+        url: `${localUrl}/hotboard/cctv/military`,
+        maxRound: 1,
+    }
+]);
+
 const { options } = props;
 const hotboardElement = computed(() => props.hotboardElement);
 
-const baiduHotboardApi = "http://localhost:3000/hotboard";
-const emptyData: CardData = {
-    hotScore: 0,
-    img: '',
-    index: 0,
-    word: ''
-}
-
 const cardElements = ref<HTMLElement[]>([]);
 
-const datas: Ref<CardData[]> = ref([]);
+const datas = ref<CardData[] | null>(null);
 const showMark = ref(false);
 
 var round = 0;
 const groupSize = computed(() => options.groupSize);
 const maxRound = computed(() => {
+    if (datas.value == null) {
+        return Infinity;
+    }
+
     const dataLength = datas.value.length;
 
     const maxDataRound = Math.ceil(dataLength / groupSize.value)
 
-    return Math.min(options.maxRound, maxDataRound);
+    return Math.min(currentData.value.maxRound, maxDataRound);
 });
 
 const lastUpdateDate = ref(getSchoolDate());
 
-const updateCardInterval = new TimeInterval(() => updateCard(), 5 * 60 * 1000, false);
+const updateCardInterval = new TimeInterval(() => updateCard(), 60 * 1000, false, false, true);
+const updateProgressInterval = new TimeInterval(() => updateProgress(), 3 * 3000, false);
 var disableInterval: TimeWithinAll;
 
 onMounted(() => {
     updateCardInterval.enable();
+    updateProgressInterval.enable();
     updateCardInterval.run();
+    updateProgressInterval.run();
 
     watch(() => options.updateCardPerMinute, updateInterval => {
         updateCardInterval.setInterval(updateInterval * 60 * 1000);
@@ -62,9 +94,6 @@ onMounted(() => {
             return;
         }
 
-        console.log(options.disableTime);
-
-
         disableInterval = new TimeWithinAll({
             schedule: options.disableTime,
             interval: 60 * 1000,
@@ -80,23 +109,19 @@ onUnmounted(() => {
 });
 
 function setCardData(card: HTMLElement, cardIndex: number, data: CardData) {
-    const { index, img, word, hotScore } = data;
+    const { image, title } = data;
 
     const indexElem = card.querySelector(".index")! as HTMLElement;
     const imgElem = card.querySelector("img")! as HTMLElement;
     const titleElem = card.querySelector(".title")! as HTMLElement;
-    const hotElem = card.querySelector(".hot")! as HTMLElement;
-
-    const imgUrl = `${img}?x-bce-process=image/resize,m_fill,w_150,h_130`;
 
     animations.change({
         element: card,
         shouldChange: () => true,
         changeConsumer: () => {
-            indexElem.textContent = "" + (index + 1);
-            imgElem.setAttribute("src", imgUrl);
-            titleElem.textContent = word;
-            hotElem.textContent = "热度" + hotScore;
+            indexElem.textContent = "" + (cardIndex + 1);
+            imgElem.setAttribute("src", image);
+            titleElem.textContent = title;
         },
         frames: {
             offset: [0, 1],
@@ -112,16 +137,19 @@ function setCardData(card: HTMLElement, cardIndex: number, data: CardData) {
 }
 
 async function updateCard() {
-    if (!datas.value || round >= maxRound.value) {
-        await refreshData();
+    if (datas.value == null || round >= maxRound.value) {
+        if (round >= maxRound.value) {
+            round = 0;
+            nextData();
+        }
 
-        if (!datas.value) {
+        const result = await fetchData();
+
+        if (result == null) {
             return;
         }
-    }
 
-    if (round >= maxRound.value) {
-        round = 0;
+        datas.value = result;
     }
 
     const roundIndex = round * groupSize.value;
@@ -129,84 +157,43 @@ async function updateCard() {
     cardElements.value.forEach((card, index) => {
         const cardDataIndex = roundIndex + index;
 
-        if (cardDataIndex >= datas.value.length) {
-            setCardData(card, index, emptyData);
+        if (cardDataIndex >= datas.value!.length) {
+            setCardData(card, cardDataIndex, emptyData);
             return;
         }
 
-        const data = datas.value[cardDataIndex];
-        setCardData(card, index, data);
+        const data = datas.value![cardDataIndex];
+        setCardData(card, cardDataIndex, data);
     });
-
-    wenYanWenCard();
 
     round++;
+
+    updateProgress();
 }
 
-async function refreshData() {
-    const response = await fetch(baiduHotboardApi);
-    const hotboardData: BaiduHotboardData = await response.json();
+async function fetchData() {
+    try {
+        const response = await fetch(currentData.value.url);
+        const hotboardData: HotboardData = await response.json();
 
-    const { content, updateTime } = hotboardData.data.cards[0];
+        const { result, updateTime } = hotboardData;
 
-    lastUpdateDate.value = new Date(parseInt(updateTime) * 1000);
-
-    datas.value = content;
+        lastUpdateDate.value = new Date(updateTime);
+        return result;
+    } catch (e) {
+        return null;
+    }
 }
 
-function wenYanWenCard() {
-    if (!options.wenYanWen) {
-        return;
-    }
-
-    const { enable,
-        replaceIndex,
-        startWeek,
-        startPage,
-        setpPage,
-        text,
-    } = options.wenYanWen;
-
-    if (!enable) {
-        return;
-    }
-
-    const size = groupSize.value;
-
-    const roundIndex = round * size + 1;
-
-    if (replaceIndex < roundIndex || replaceIndex > roundIndex + size) {
-        return;
-    }
-
-    const cardIndex = (replaceIndex - 1) % size;
-    const card = cardElements.value[cardIndex];
-
-    const thisWeekStartPage = startPage + (getSchoolWeek() - startWeek) * setpPage,
-        thisWeekEndPage = thisWeekStartPage + setpPage - 1;
-
-    const wenYanWenText = format(text[Math.floor(Math.random()) * text.length], thisWeekStartPage, thisWeekEndPage);
-
-    setCardData(card, cardIndex, {
-        hotScore: 0,
-        img: 'https://fyb-1.cdn.bcebos.com/fyb/de6163834f53ca92c1273fff98ac9078.jpeg',
-        index: roundIndex + cardIndex - 1,
-        word: wenYanWenText
-    });
+function updateProgress() {
+    currentData.value.progress = updateCardInterval.progress;
 }
 
 </script>
 
 <template>
-    <div class="container board_title">
-        <img src="../../images/hot.png">
-        <h1 @click="updateCardInterval.restart()">今日热搜</h1>
-
-        <div class="container info_wrapper">
-            <h2>数据来源：百度热搜</h2>
-            <h2>数据更新时间{{ dateToString(lastUpdateDate) }}</h2>
-            <h2>更新间隔{{ options.updateCardPerMinute }}min</h2>
-        </div>
+    <div class="container board_title" @click="updateCardInterval.restart()">
+        <InfoBar :data="currentData"></InfoBar>
     </div>
 
     <div class="container board_body">
@@ -231,30 +218,49 @@ function wenYanWenCard() {
 
 <style scoped>
 .board_title {
+    position: relative;
     width: 100%;
-    margin: 20px 0px 20px;
+    height: 2em;
 
-    color: #ff4d4d;
+    padding: 8px;
+
     text-align: center;
-    justify-content: start;
+    justify-content: space-around;
 }
 
-.board_title img {
-    width: 1em;
-    aspect-ratio: 1/1;
+.board_title :deep(.bar) {
+    position: relative;
+    top: 50%;
+
+    width: 90%;
+    height: 75%;
+
+    border-radius: 30px;
+
+    background-color: rgba(255, 255, 255, 0.2);
+
+    overflow: hidden;
+
+    z-index: -1;
 }
 
-.board_title h1,
-.board_title h2 {
-    font-size: 1em;
+.board_title :deep(.content) {
+    color: white;
+    font-size: 1.5em;
 }
 
-.board_title h2 {
+h1 {
+    color: white;
+
+    font-size: 1.5em;
+}
+
+h2 {
     font-size: 0.5em;
     color: #121212;
 }
 
-.board_title .info_wrapper {
+.info_wrapper {
     flex-flow: column;
     justify-content: start;
 
@@ -273,10 +279,68 @@ function wenYanWenCard() {
     justify-content: start;
     align-items: stretch;
 
+    backdrop-filter: blur(4px);
+
     width: 100%;
 }
 
-.board_body .mark {
+.card {
+    flex: 1;
+
+    justify-content: start;
+    align-items: start;
+
+    margin: 0px 8px 0px 0px;
+    padding: 8px;
+    border-bottom: 1px solid #121212;
+
+    transition: all 3s ease-in-out;
+}
+
+.card .image_wrapper {
+    position: relative;
+
+    width: 5em;
+    aspect-ratio: 6/5;
+
+    border-radius: 10%;
+
+    overflow: hidden;
+    z-index: 1;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card .index {
+    position: absolute;
+    top: 0;
+
+    width: 1.5em;
+    aspect-ratio: 4/3;
+
+    background: #f60;
+    border-bottom-right-radius: 20px;
+
+    color: white;
+    text-align: center;
+    font-size: 0.75em;
+}
+
+.card .title {
+    flex: 1;
+    margin: 0px 8px;
+    color: #121212;
+    font-size: 1em;
+    text-shadow:
+        -1px -1px 1px #F3EEEA,
+        1px 1px 1px #776B5D;
+}
+
+.mark {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -297,83 +361,5 @@ function wenYanWenCard() {
     z-index: 100;
 
     transition: all 3s ease-in-out;
-}
-
-.board_body .card {
-    flex: 1;
-
-    justify-content: start;
-    align-items: start;
-
-    margin: 8px;
-    padding: 8px;
-    border-radius: 30px;
-    background-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4),
-        4px 4px 4px rgba(0, 0, 0, 0.2),
-        -2px -2px 4px rgba(255, 255, 255, 0.5),
-        -4px -4px 4px rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(4px);
-
-    transition: all 3s ease-in-out;
-}
-
-.board_body .card .image_wrapper {
-    position: relative;
-
-    width: 3.5em;
-    aspect-ratio: 150/130;
-
-    border-radius: 30px;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4),
-        4px 4px 4px rgba(0, 0, 0, 0.2);
-
-    overflow: hidden;
-    z-index: 1;
-}
-
-.board_body .card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.board_body .card .index {
-    position: absolute;
-    top: 0;
-
-    width: 1.5em;
-    aspect-ratio: 3/2;
-
-    background: #f60;
-    border-bottom-right-radius: 20px;
-
-    color: white;
-    text-align: center;
-    font-size: 0.75em;
-}
-
-.board_body .card .title {
-    flex: 1;
-    margin: 0px 8px;
-    color: black;
-    font-size: 1em;
-    text-shadow:
-        -1px -1px 1px #F3EEEA,
-        1px 1px 1px #776B5D;
-    z-index: 1;
-}
-
-.board_body .card .hot {
-    position: absolute;
-    top: 75%;
-    right: 0;
-    transform: translate(0, -50%);
-
-    filter: blur(1.5px);
-
-    color: #f60;
-    font-size: 0.5em;
-    z-index: 0;
 }
 </style>

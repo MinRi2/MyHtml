@@ -1,4 +1,4 @@
-import DynamaticPaperAppVue from "./components/DynamaticPaperApp.vue"
+import DynamaticPaperAppVue from "./DynamaticPaperApp.vue"
 import { createApp } from "vue"
 import "../css/style.css"
 import background from "../images/default.jpg"

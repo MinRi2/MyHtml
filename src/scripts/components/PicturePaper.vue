@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Topics } from '../types/picturePaper';
-import defaultImage from '../../images/default.jpg';
+import defaultImage from '../../images/default.png';
 import { createApi } from 'unsplash-js';
 import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { Random } from 'unsplash-js/dist/methods/photos/types';

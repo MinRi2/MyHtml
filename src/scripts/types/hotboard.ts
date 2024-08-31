@@ -1,19 +1,26 @@
 interface CardData {
-    hotScore: number,
-    img: string,
-    index: number,
-    word: string,
+    title: string,
+    image: string,
+    description?: string,
+    dateTime?: string,
 }
 
-interface BaiduHotboardData {
-    data: {
-        cards: [
-            {
-                updateTime: string,
-                content: CardData[],
-            }
-        ],
-    }
+interface HotboardData {
+    updateTime: string,
+    result: CardData[],
 }
 
-export { CardData, BaiduHotboardData };
+interface HotboardSource {
+    name: string,
+    url: string,
+    maxRound: number,
+}
+
+const emptyData: CardData = {
+    title: '',
+    image: '',
+    description: '',
+    dateTime: '',
+}
+
+export { CardData, HotboardData, HotboardSource, emptyData };
