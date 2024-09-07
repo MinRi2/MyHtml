@@ -74,7 +74,7 @@ onMounted(() => {
         barNameData.color = color;
         barScheduleData.text = `${startTime}-${endTime}`;
         barData.linear = `linear-gradient(to right, ${gradientColor})`;
-    }, { immediate: true });
+    }, { deep: true, immediate: true });
 });
 
 onUnmounted(() => {
@@ -189,7 +189,7 @@ function addBarSchedules(barScheduleArray: BarSchedule[]) {
         4px 4px 3px var(--text-shadow-color);
 }
 
-.bar h2{
+.bar h2 {
     font-weight: normal;
     font-size: 0.75em;
     text-shadow:
