@@ -22,7 +22,7 @@ const { currentData: currentSource, nextData: nextSource, array: sourceDataArray
     {
         name: "百度热搜",
         color: "#1fab89",
-        lineaner: "linear-gradient(-225deg, #4596FB 0%, #57F2CC 48%, #D4FFEC 100%)",
+        linear: "linear-gradient(-225deg, #4596FB 0%, #57F2CC 48%, #D4FFEC 100%)",
         progress: 0,
 
         url: `${localUrl}/hotboard/baidu`,
@@ -31,7 +31,7 @@ const { currentData: currentSource, nextData: nextSource, array: sourceDataArray
     {
         name: "央视国际新闻",
         color: "#f6f7d7",
-        lineaner: "linear-gradient(to right, #e65c00 , #f9d423)",
+        linear: "linear-gradient(to right, #e65c00 , #f9d423)",
         progress: 0,
 
         url: `${localUrl}/hotboard/cctv/world`,
@@ -40,7 +40,7 @@ const { currentData: currentSource, nextData: nextSource, array: sourceDataArray
     {
         name: "央视军事新闻",
         color: "#e84545",
-        lineaner: "linear-gradient(to right, #ff9569 0%, #e92758 100%)",
+        linear: "linear-gradient(to right, #ff9569 0%, #e92758 100%)",
         progress: 0,
 
         url: `${localUrl}/hotboard/cctv/military`,
@@ -257,14 +257,10 @@ function updateProgress() {
 }
 
 .board_title :deep(.bar) {
-    top: 50%;
-
     width: 90%;
     height: 75%;
 
     border-radius: 30px;
-
-    z-index: -1;
 }
 
 .source_name {

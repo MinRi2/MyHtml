@@ -1,5 +1,5 @@
 interface InfoBarData {
-    lineaner: string;
+    linear: string;
     progress: number;
 };
 
