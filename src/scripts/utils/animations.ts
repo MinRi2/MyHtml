@@ -90,7 +90,7 @@ async function textInnerHtmlChange(data: HTMLChangeData) {
         ...data,
 
         shouldChange: () => {
-            return element.innerHTML != innerHTML && (shouldChange && shouldChange());
+            return element.innerHTML != innerHTML && (!shouldChange || shouldChange());
         },
 
         changeConsumer: () => {
