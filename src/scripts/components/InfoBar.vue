@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onMounted, ref, watchEffect } from 'vue';
 import { InfoBarData } from '../types/info-bar';
 
 const properies = defineProps<{
@@ -17,7 +16,7 @@ const properies = defineProps<{
 
         <div class="color_block" :style="{
             right: `${(1 - properies.data.progress) * 100}%`,
-            backgroundImage: properies.data.lineaner
+            backgroundImage: properies.data.linear
         }"></div>
     </div>
 
@@ -30,16 +29,11 @@ const properies = defineProps<{
     width: 100%;
     height: 100%;
 
-    border-radius: 5px;
-
-    transform: translateY(-50%);
-
     overflow: hidden;
 }
 
 .background {
     background-color: rgba(255, 255, 255, 0.2);
-    transform: skewX(-15deg);
 }
 
 .color_block {
