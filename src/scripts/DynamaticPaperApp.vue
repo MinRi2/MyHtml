@@ -19,7 +19,7 @@ const defaultOptions: PaperOptions = {
     style: {
         courses: "40px",
         timer: "40px",
-        timeBar: "20px",
+        timeBar: "35px",
         clock: "55px",
         hotboard: {
             width: "16em",
@@ -261,12 +261,13 @@ function initWsConnection() {
 }
 
 .container_time_bar {
-    justify-content: space-between;
-
     position: absolute;
     top: 35%;
     right: 0%;
     transform: translate(0%, -100%);
+
+    width: 12em;
+    height: 2.5em;
 
     background-image: linear-gradient(to right bottom, #dcdcffaa, #729eceaa);
     backdrop-filter: blur(8px);
@@ -276,7 +277,6 @@ function initWsConnection() {
     box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.5);
 
     --text-shadow-color: black;
-    font-size: 20px;
     color: white;
     overflow: hidden;
     transition: all 1s ease-in-out;
