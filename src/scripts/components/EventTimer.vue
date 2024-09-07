@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TimerEvent } from '../types/event-timer';
-import { getSchoolDate, dateToString, TimeInterval, dayStringMap } from '../utils/dateUtils';
-import * as animations from "../utils/animations";
+import { getSchoolDate, dateToString, IntervalTask, dayStringMap } from '../utils/dateUtils';
+import animations from "../utils/animations";
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { EventTimerOptions, TimerEventOptions } from '../paperOptions';
 import { coursesData } from '../types/courses';
@@ -62,7 +62,7 @@ const customFrames = {
     transform: ["", ""],
 }
 
-const refreshInterval = new TimeInterval(refreshTimer, 800, false);
+const refreshInterval = new IntervalTask(refreshTimer, 800, false);
 
 onMounted(() => {
     refreshInterval.enable();

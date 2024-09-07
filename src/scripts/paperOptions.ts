@@ -54,7 +54,7 @@ interface CoursesOptions {
 }
 
 interface DayScheduleOption {
-    acceptCourseOnly?: string[];
+    acceptCoursesOnly?: string[];
     deleteHeads?: string[];
     defaultCourses?: string[];
     extraCourses?: ExtraCourseOption[];

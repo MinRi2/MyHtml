@@ -1,7 +1,7 @@
 type stringObj = { [key: string]: any };
 
 class Disable {
-    private isEnabled: boolean = false;
+    private _enabled: boolean = false;
 
     enable() {
         if (this.enabled) {
@@ -19,7 +19,7 @@ class Disable {
         this.enabled = false;
     }
 
-    public restart(){
+    public restart() {
         this.disable();
         this.enable();
     }
@@ -35,11 +35,11 @@ class Disable {
             this.onDisabled();
         }
 
-        this.isEnabled = enabled;
+        this._enabled = enabled;
     }
 
     public get enabled(): boolean {
-        return this.isEnabled;
+        return this._enabled;
     }
 }
 

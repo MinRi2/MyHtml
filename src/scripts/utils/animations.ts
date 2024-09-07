@@ -11,18 +11,21 @@ const textChangeFrames = {
     transform: ["", "scale(0.5)"]
 };
 
+type AnimateKeyframes = Parameters<Animatable['animate']>[0];
+
 interface AnimationData {
-    element: HTMLElement,
-    frames?: Keyframe[] | PropertyIndexedKeyframes;
-    options?: KeyframeAnimationOptions;
+    frames?: AnimateKeyframes;
+    options?: KeyframeAnimationOptions | null;
 }
 
 interface ChangeAnimationData extends AnimationData {
+    element: HTMLElement;
     shouldChange: () => boolean;
     changeConsumer: () => void;
 }
 
-interface TextContentChangeData extends AnimationData {
+interface HTMLChangeData extends AnimationData {
+    element: HTMLElement;
     innerHTML: string;
     shouldChange?: () => boolean;
     changeConsumer?: () => void;
@@ -37,10 +40,10 @@ interface TextContentChangeData extends AnimationData {
  * @param {Object} customOpts 动画配置
  * @returns 
  */
-function change({
+async function change({
     element,
-    frames = {},
-    options = changeOpts,
+    frames,
+    options = {},
     shouldChange,
     changeConsumer
 }: ChangeAnimationData) {
@@ -48,46 +51,56 @@ function change({
         return;
     }
 
-    const animation = element.animate({
-        ...frames,
-    }, {
+    const animation = element.animate(frames, {
         ...changeOpts,
         ...options,
     });
 
     animation.play();
 
-    animation.finished.then(() => {
-        animation.reverse();
-        animation.play();
+    await animation.finished;
 
-        changeConsumer();
-    });
+    animation.reverse();
+    animation.play();
+
+    changeConsumer();
+
+    await animation.finished;
+
+    animation.cancel();
 }
 
-function textChange(data: ChangeAnimationData) {
-    data.frames = {
-        ...textChangeFrames,
-        ...data.frames,
+async function textChange(data: ChangeAnimationData, mergeDefault = false) {
+    if (!data.frames) {
+        data.frames = textChangeFrames;
+    } else if (mergeDefault) {
+        data.frames = {
+            ...textChangeFrames,
+            ...data.frames,
+        }
     }
 
-    change(data);
+    await change(data);
 }
 
-function textInnerHtmlChange(data: TextContentChangeData) {
+async function textInnerHtmlChange(data: HTMLChangeData) {
     const { element, innerHTML, shouldChange, changeConsumer } = data;
 
-    textChange({
+    await textChange({
         ...data,
 
         shouldChange: () => {
-            return element.innerHTML != innerHTML && (!shouldChange || shouldChange());
+            return element.innerHTML != innerHTML && (shouldChange && shouldChange());
         },
+
         changeConsumer: () => {
-            !changeConsumer || changeConsumer();
+            changeConsumer && changeConsumer();
             element.innerHTML = innerHTML;
         },
     });
 }
 
-export { change, textChange, textInnerHtmlChange }
+export default { change, textChange, textInnerHtmlChange }
+export {
+    AnimateKeyframes, AnimationData, ChangeAnimationData, HTMLChangeData
+}

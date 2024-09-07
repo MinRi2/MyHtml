@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, toValue, watch, watchEffect } from 'vue';
+import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { CoursesOptions, ExtraCourseOption } from '../../paperOptions';
 import CourseCell from './CourseCell.vue'
 import { Course, coursesData } from '../../types/courses';
-import * as animations from '../../utils/animations';
-import { TimeInterval, getSchoolDate, toDate, dayStringMap, getSchoolWeek, DayName } from '../../utils/dateUtils';
-import { clone } from '../../utils/objectUtils';
+import animations from '../../utils/animations';
+import { IntervalTask, getSchoolDate, toDate, dayStringMap, getSchoolWeek, DayName } from '../../utils/dateUtils';
+import useColoredText from '../../hooks/useColoredText';
 
 const { options } = defineProps<{
     options: CoursesOptions
@@ -13,6 +13,7 @@ const { options } = defineProps<{
 const { daySchedules } = coursesData;
 
 const dayElem = ref<HTMLElement>(), weekElem = ref<HTMLElement>();
+const dayTexData = useColoredText({}), weekTextData = useColoredText({});
 
 const showDay = ref(0);
 const offsetDay = computed(() => {
@@ -26,15 +27,19 @@ const todaySchedule = computed(() => daySchedules[showDay.value]);
 const courseArray = computed(() => todaySchedule.value.courseArray);
 
 onMounted(() => {
+    dayTexData.element = dayElem.value;
+    weekTextData.element = weekElem.value;
+
     var today = getSchoolDate().getDay();
-    var nextDate = computed(() => {
-        return toDate(options.nextDayTime);
+    var nextDayTime = computed(() => {
+        nextDayCheckTask.enable();
+        return toDate(options.nextDayTime)
     });
 
-    const nextDayInterval = new TimeInterval(() => {
-        if (getSchoolDate() > nextDate.value) {
+    const nextDayCheckTask = new IntervalTask(() => {
+        if (getSchoolDate() > nextDayTime.value) {
             showDay.value = (today + 1) % 7;
-            nextDayInterval.disable();
+            nextDayCheckTask.disable();
         }
     }, 1000 * 5);
 
@@ -43,10 +48,6 @@ onMounted(() => {
     watch(options, () => {
         readOptions();
     })
-
-    watch(() => options.nextDayTime, () => {
-        nextDayInterval.enable();
-    });
 
     watch(() => options.showDay, customShowDay => {
         if (!customShowDay) {
@@ -65,39 +66,11 @@ onMounted(() => {
     });
 
     watchEffect(() => {
-        const element = dayElem.value;
-        if (!element) {
-            return;
-        }
-
-        const dayText = dayStringMap[showDay.value];
-
-        animations.textInnerHtmlChange({
-            element: element,
-            innerHTML: dayText,
-            options: {
-                duration: 200,
-            }
-        });
+        dayTexData.text = dayStringMap[showDay.value];
     });
 
     watchEffect(() => {
-        const element = weekElem.value;
-        if (!element) {
-            return;
-        }
-
-        let weekText = `第<br><span>${getSchoolWeek(offsetDay.value)}</span><br>周`;
-
-        animations.textInnerHtmlChange({
-            element: element,
-            innerHTML: weekText,
-            options: {
-                duration: 200,
-            },
-        });
-
-
+        weekTextData.text = "" + getSchoolWeek(offsetDay.value);
     });
 });
 
@@ -223,7 +196,9 @@ function readOptions() {
     <div class="day" ref="dayElem"></div>
     <CourseCell v-for="course in courseArray" :course="course" :offsetDay="offsetDay">
     </CourseCell>
-    <div class="week" ref="weekElem"></div>
+    <div class="week">
+        第<br><span ref="weekElem"></span><br>周
+    </div>
 </template>
 
 <style scoped>

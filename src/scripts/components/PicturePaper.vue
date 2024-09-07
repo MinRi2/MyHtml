@@ -4,7 +4,7 @@ import { createApi } from 'unsplash-js';
 import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { Random } from 'unsplash-js/dist/methods/photos/types';
 import { RandomParams } from 'unsplash-js/dist/methods/photos';
-import { TimeInterval } from '../utils/dateUtils';
+import { IntervalTask } from '../utils/dateUtils';
 import { PicturePaperOptions } from '../paperOptions';
 import { localUrl } from '../vars';
 
@@ -44,7 +44,7 @@ var index = 0;
 
 const baseImageUrl = `${localUrl}/static/images`;
 
-const fetchIntveral = new TimeInterval(() => {
+const fetchIntveral = new IntervalTask(() => {
     if (imageLoaded.length >= fetchCount) {
         fetchIntveral.disable();
     } else {
@@ -52,7 +52,7 @@ const fetchIntveral = new TimeInterval(() => {
     }
 }, 5 * 60 * 1000, false);
 
-const nextPageInterval = new TimeInterval(() => {
+const nextPageInterval = new IntervalTask(() => {
     if (imageLoaded.length == 0) {
         return;
     }

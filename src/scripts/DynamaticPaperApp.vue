@@ -10,7 +10,7 @@ import WeatherForcast from './components/./WeatherForcast.vue';
 import PaperOptions from "./paperOptions";
 import LazyMount from "./components/LazyMount.vue";
 import { clone, mergeObjFrom } from "./utils/objectUtils";
-import { dateOffset, TimeInterval, toDate, weekStartDate } from "./utils/dateUtils";
+import { dateOffset, IntervalTask, toDate, weekStartDate } from "./utils/dateUtils";
 import { ElementGroup, GroupedElement } from "./types/elementGroup";
 import { coursesData } from "./types/courses";
 import { localDomin } from "./vars";
@@ -131,7 +131,7 @@ onMounted(() => {
 });
 
 function initWsConnection() {
-    const connectInterval = new TimeInterval(() => {
+    const connectInterval = new IntervalTask(() => {
         const socket = new WebSocket(`ws://${localDomin}/config`);
 
         socket.onmessage = (event: MessageEvent<any>) => {

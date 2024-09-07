@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue';
 import { Course, coursesData } from '../../types/courses';
-import * as animations from "../../utils/animations";
-import { TimeInterval, getSchoolDate } from '../../utils/dateUtils';
+import { IntervalTask, getSchoolDate } from '../../utils/dateUtils';
+import useColoredText from '../../hooks/useColoredText';
 
 const props = defineProps<{
     course: Course,
@@ -34,7 +34,14 @@ const shadowColor = computed(() => coursesData.getCourseColor(courseName.value))
 const headElem = ref<HTMLElement>(),
     courseElem = ref<HTMLElement>();
 
-const checkOverInterval = new TimeInterval(() => {
+const headData = useColoredText({
+    options: { duration: 500 }
+}),
+    courseData = useColoredText({
+        options: { duration: 500 }
+    });
+
+const checkOverInterval = new IntervalTask(() => {
     const nowDate = getSchoolDate();
 
     headColor.value =
@@ -45,25 +52,15 @@ const checkOverInterval = new TimeInterval(() => {
 }, 3 * 1000, false);
 
 onMounted(() => {
+    headData.element = headElem.value;
+    courseData.element = courseElem.value;
+
     watchEffect(() => {
-        const courseElement = courseElem.value;
+        headData.text = course.value.headName;
+        courseData.text = courseName.value;
 
-        if (courseElement) animations.textInnerHtmlChange({
-            element: courseElement,
-            innerHTML: courseName.value,
-            options: {
-                duration: 500,
-            }
-        });
-
-        const headElement = headElem.value;
-        if (headElement) animations.textInnerHtmlChange({
-            element: headElement,
-            innerHTML: course.value.headName,
-            options: {
-                duration: 500,
-            }
-        });
+        headData.color = headColor.value;
+        courseData.color = courseColor.value;
     });
 
     checkOverInterval.enable();

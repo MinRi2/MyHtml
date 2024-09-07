@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { TimeInterval, dayStringMap, getSchoolDate } from "../utils/dateUtils";
-import * as animations from "../utils/animations";
+import { IntervalTask, dayStringMap, getSchoolDate } from "../utils/dateUtils";
+import animations from "../utils/animations";
 import * as chroma from "chroma-js"
-import { inject, onMounted, onUnmounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { BarSchedule } from "../types/timeBar";
 import { TimeBarOptions } from "../paperOptions";
 import { coursesData } from "../types/courses";
-import { stringObj } from "../utils/typeUtils";
 
 const { daySchedules } = coursesData;
 
@@ -27,7 +26,7 @@ const customTextChangeFrames = {
     transform: ["", ""],
 };
 
-const refreshBarInterval = new TimeInterval(() => refreshBar(), 3 * 1000, false);
+const refreshBarInterval = new IntervalTask(() => refreshBar(), 3 * 1000, false);
 
 const { options } = defineProps<{
     options: TimeBarOptions
@@ -208,6 +207,8 @@ function addBarSchedules(barScheduleArray: BarSchedule[]) {
 
     /* background-image: linear-gradient(to right, red, orange); */
     transition: all 2s linear;
+
+    z-index: -1;
 }
 
 .bar {
