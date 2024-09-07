@@ -170,11 +170,6 @@ function addBarSchedules(barScheduleArray: BarSchedule[]) {
         }"></h1>
         <h2 id="time" ref="barScheduleElem"></h2>
     </InfoBar>
-
-    <!-- <div class="bar_cutbox" :style="{
-            width: fract * 2 * 100 + '%',
-            backgroundImage: `linear-gradient(to right, ${gradientColor})`,
-        }"></div> -->
 </template>
 
 <style scoped>
@@ -194,7 +189,7 @@ function addBarSchedules(barScheduleArray: BarSchedule[]) {
         4px 4px 3px var(--text-shadow-color);
 }
 
-.bar h2 {
+.bar h2{
     font-weight: normal;
     font-size: 0.75em;
     text-shadow:
