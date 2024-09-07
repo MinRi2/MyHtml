@@ -6,7 +6,7 @@ import { GroupedElement } from '../types/elementGroup';
 import { HotboardOptions } from '../paperOptions';
 import animations from '../utils/animations';
 import InfoBar from './InfoBar.vue';
-import { InfoBarData } from '../types/info-bar';
+import { ProgressData } from '../types/progress';
 import { useSingleArray } from '../hooks/useSingleObject';
 import { localUrl } from '../vars';
 import useColoredText from '../hooks/useColoredText';
@@ -16,7 +16,7 @@ const props = defineProps<{
     hotboardElement: GroupedElement,
 }>();
 
-const { currentData: currentSource, nextData: nextSource, array: sourceDataArray } = useSingleArray<InfoBarData & HotboardSource & {
+const { currentData: currentSource, nextData: nextSource, array: sourceDataArray } = useSingleArray<ProgressData & HotboardSource & {
     color?: string
 }>([
     {

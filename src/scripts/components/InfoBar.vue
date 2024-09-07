@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { InfoBarData } from '../types/info-bar';
+import { ProgressData } from '../types/progress';
 
 const properies = defineProps<{
-    data: InfoBarData,
+    data: ProgressData,
 }>();
 </script>
 

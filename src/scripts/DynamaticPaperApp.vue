@@ -7,8 +7,8 @@ import PicturePaper from './components/./PicturePaper.vue';
 import EventTimer from "./components/./EventTimer.vue";
 import Hotboard from "./components/./Hotboard.vue";
 import WeatherForcast from './components/./WeatherForcast.vue';
-import PaperOptions from "./paperOptions";
 import LazyMount from "./components/LazyMount.vue";
+import PaperOptions from "./paperOptions";
 import { clone, mergeObjFrom } from "./utils/objectUtils";
 import { dateOffset, IntervalTask, toDate, weekStartDate } from "./utils/dateUtils";
 import { ElementGroup, GroupedElement } from "./types/elementGroup";
@@ -154,6 +154,10 @@ function initWsConnection() {
 </script>
 
 <template>
+    <WaveBall :data="{
+        progress: 0.5,
+    }"></WaveBall>
+
     <!-- 背景 -->
     <PicturePaper :options="options.picturePaper"></PicturePaper>
 

@@ -7,7 +7,7 @@ import { BarSchedule } from "../types/timeBar";
 import { TimeBarOptions } from "../paperOptions";
 import { coursesData } from "../types/courses";
 import InfoBar from "./InfoBar.vue";
-import { InfoBarData } from "../types/info-bar";
+import { ProgressData } from "../types/progress";
 import useColoredText from "../hooks/useColoredText";
 import { useSingleArray } from "../hooks/useSingleObject";
 
@@ -34,7 +34,7 @@ const barNameData = useColoredText({
     frames: customTextChangeFrames,
 });
 
-const barData: InfoBarData = reactive({
+const barData: ProgressData = reactive({
     linear: "",
     progress: 0,
 });
