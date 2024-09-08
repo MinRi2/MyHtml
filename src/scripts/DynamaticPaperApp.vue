@@ -154,10 +154,6 @@ function initWsConnection() {
 </script>
 
 <template>
-    <WaveBall :data="{
-        progress: 0.5,
-    }"></WaveBall>
-
     <!-- 背景 -->
     <PicturePaper :options="options.picturePaper"></PicturePaper>
 
