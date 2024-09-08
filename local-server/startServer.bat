@@ -6,4 +6,5 @@
 set curdir=%~dp0
 call %curdir%\installDependencies.bat 
 
+cd src
 node app.mjs

@@ -4,14 +4,18 @@ import { DayName, ValidTimeSchedule } from "./utils/dateUtils";
 import { TimerEventData } from "./types/event-timer";
 import { stringObj } from "./utils/typeUtils";
 import { WeatherTypeName } from "./types/wether-forcast-board";
+import { Topics } from "./types/picturePaper";
+import { ValidHotboardSource } from "./types/hotboard";
 
 //#region 壁纸
 interface PicturePaperOptions {
     unsplashKey: string;
     enableUnsplash: boolean;
+    topics?: Topics[];
+
+    images?: string[];
 
     fetchCount: number;
-
     /**
      * 单位: min
      */
@@ -50,7 +54,7 @@ interface CoursesOptions {
 }
 
 interface DayScheduleOption {
-    acceptCourseOnly?: string[];
+    acceptCoursesOnly?: string[];
     deleteHeads?: string[];
     defaultCourses?: string[];
     extraCourses?: ExtraCourseOption[];
@@ -87,20 +91,14 @@ interface TimerEventOptions extends TimerEventData {
 //#region 热搜榜
 interface HotboardOptions {
     groupSize: number;
-    maxRound: number;
     updateCardPerMinute: number;
     disableTime?: ValidTimeSchedule[];
-    wenYanWen?: WenYanWenOptions;
+    source: Record<ValidHotboardSource, {
+        disable?: boolean,
+        round: number,
+    }>
 }
 
-interface WenYanWenOptions {
-    enable: boolean;
-    replaceIndex: number; // 替换的卡片排行
-    startWeek: number;
-    startPage: number;
-    setpPage: number;
-    text: string[];
-}
 //#endregion
 
 //#region 天气预报

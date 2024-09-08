@@ -1,68 +1,76 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
-import { getSchoolDate, TimeInterval, TimeWithinAll } from '../utils/dateUtils';
-import { CardData, emptyData, HotboardData, HotboardSource, ValidHotboardSource } from '../types/hotboard';
+import { IntervalTask, WithinTasks } from '../utils/dateUtils';
+import { CardData, emptyData, HotboardData, HotboardSource } from '../types/hotboard';
 import { GroupedElement } from '../types/elementGroup';
 import { HotboardOptions } from '../paperOptions';
-import * as animations from '../utils/animations';
+import animations from '../utils/animations';
 import InfoBar from './InfoBar.vue';
-import { InfoBarData } from '../types/info-bar';
+import { ProgressData } from '../types/progress';
 import { useSingleArray } from '../hooks/useSingleObject';
-import useDebounce from '../hooks/useDebounce';
 import { localUrl } from '../vars';
+import useColoredText from '../hooks/useColoredText';
 
 const props = defineProps<{
     options: HotboardOptions,
-    hotboardElement: GroupedElement | undefined,
+    hotboardElement: GroupedElement,
 }>();
 
-const { currentData: currentSource, nextData: nextSource, array: sourceDataArray } = useSingleArray<InfoBarData & HotboardSource & {
-    name: ValidHotboardSource
+const { currentData: currentSource, nextData: nextSource, array: sourceDataArray } = useSingleArray<ProgressData & HotboardSource & {
+    color?: string
 }>([
     {
         name: "百度热搜",
         color: "#1fab89",
-        lineaner: "linear-gradient(-225deg, #4596FB 0%, #57F2CC 48%, #D4FFEC 100%)",
+        linear: "linear-gradient(-225deg, #4596FB 0%, #57F2CC 48%, #D4FFEC 100%)",
         progress: 0,
 
         url: `${localUrl}/hotboard/baidu`,
-        disable: false,
         round: 4,
     },
     {
         name: "央视国际新闻",
         color: "#f6f7d7",
-        lineaner: "linear-gradient(to right, #e65c00 , #f9d423)",
+        linear: "linear-gradient(to right, #e65c00 , #f9d423)",
         progress: 0,
 
         url: `${localUrl}/hotboard/cctv/world`,
-        disable: false,
         round: 4,
     },
     {
         name: "央视军事新闻",
         color: "#e84545",
-        lineaner: "linear-gradient(to right, #ff9569 0%, #e92758 100%)",
+        linear: "linear-gradient(to right, #ff9569 0%, #e92758 100%)",
         progress: 0,
 
         url: `${localUrl}/hotboard/cctv/military`,
-        disable: false,
         round: 4,
     }
 ]);
 
 const { options } = props;
-const hotboardElement = computed(() => props.hotboardElement);
 
 const cardElements = ref<HTMLElement[]>([]);
+const barTextElem = ref<HTMLElement>();
+
+const barTextData = useColoredText({
+    options: {
+        duration: 2000,
+        easing: "cubic-bezier(0.42, 0, 0.58, 1)",
+    }
+});
 
 const datas = ref<CardData[]>([]);
 const showMark = ref(false);
-const updatingCard = ref(false);
+const isNextRounding = ref(false);
 
 var round = 0;
 const groupSize = computed(() => options.groupSize);
 const maxRound = computed(() => {
+    if (datas.value == null) {
+        return Infinity;
+    }
+
     const dataLength = datas.value.length;
 
     const maxDataRound = Math.ceil(dataLength / groupSize.value);
@@ -70,61 +78,45 @@ const maxRound = computed(() => {
     return Math.min(currentSource.value.round, maxDataRound);
 });
 
-const lastUpdateDate = ref(getSchoolDate());
-
-const updateCardInterval = new TimeInterval(() => updateCard(), 5 * 60 * 1000, false, false, true);
-const updateProgressInterval = new TimeInterval(() => updateProgress(), 10 * 1000, false);
-const initDataInterval = new TimeInterval(() => {
-    if (datas.value.length != 0) {
-        initDataInterval.disable();
-        return;
-    }
-
-    updateCard();
-}, 5 * 1000, false);
-var disableInterval: TimeWithinAll;
-
-const updateManuallyDeb = useDebounce(() => {
-    updateCardInterval.restart();
-}, 1500);
+const nextRoundTask = new IntervalTask(() => nextRound(), 5 * 60 * 1000, false, false, true);
+const updateProgressTask = new IntervalTask(() => updateProgress(), 10 * 1000, false);
+var disableCheckTask: WithinTasks;
 
 onMounted(() => {
-    updateCardInterval.enable();
-    updateProgressInterval.enable();
-    initDataInterval.enable();
-
-    updateCardInterval.run();
-    updateProgressInterval.run();
+    nextRoundTask.enable();
+    updateProgressTask.enable();
+    nextRoundTask.run();
+    updateProgressTask.run();
 
     watch(() => options.updateCardPerMinute, updateInterval => {
-        updateCardInterval.setInterval(updateInterval * 60 * 1000);
+        nextRoundTask.setInterval(updateInterval * 60 * 1000);
     });
 
-    watch(() => hotboardElement.value?.visible, visible => {
-        updateCardInterval.enabled = visible ?? false;
+    watch(() => props.hotboardElement.visible, visible => {
+        nextRoundTask.enabled = visible ?? false;
     });
 
     watch(() => options.source, sourceData => {
         sourceDataArray.forEach(data => {
-            let { disable, round } = sourceData[data.name];
+            const { disable, round } = sourceData[data.name];
 
             data.disable = disable;
             data.round = round;
 
             if (currentSource.value == data && disable) {
-                updateCard();
+                nextRound();
             }
         });
     }, { deep: true });
 
     watchEffect(() => {
-        if (disableInterval) disableInterval.disable();
+        if (disableCheckTask) disableCheckTask.disable();
 
         if (!options.disableTime) {
             return;
         }
 
-        disableInterval = new TimeWithinAll({
+        disableCheckTask = new WithinTasks({
             schedule: options.disableTime,
             interval: 60 * 1000,
             waitCons: () => showMark.value = false,
@@ -132,52 +124,20 @@ onMounted(() => {
             overCons: () => showMark.value = false,
         })
     });
+
+    watchEffect(() => {
+        barTextData.element = barTextElem.value;
+        barTextData.text = currentSource.value.name;
+        barTextData.color = currentSource.value.color;
+    });
 });
 
 onUnmounted(() => {
-    updateCardInterval.disable();
-    updateProgressInterval.disable();
-    initDataInterval.disable();
+    nextRoundTask.disable();
 });
 
-function setCardData(card: HTMLElement, cardIndex: number, data: CardData) {
-    const { image, title } = data;
-
-    const indexElem = card.querySelector(".index")! as HTMLElement;
-    const imgElem = card.querySelector("img")! as HTMLElement;
-    const titleElem = card.querySelector(".title")! as HTMLElement;
-
-    animations.change({
-        element: card,
-        shouldChange: () => true,
-        changeConsumer: () => {
-            indexElem.textContent = "" + (cardIndex + 1);
-            imgElem.setAttribute("src", image);
-            titleElem.textContent = title;
-        },
-        frames: {
-            offset: [0, 1],
-            transform: ["", "translate(-120%, 0)"],
-            filter: ["", "blur(4px)"],
-        },
-        options: {
-            duration: 2000,
-            delay: cardIndex * 600,
-            easing: "cubic-bezier(0.42, 0, 0.58, 1)",
-        }
-    });
-}
-
-async function updateCard() {
-    if (datas.value.length == 0) {
-        const result = await fetchData();
-
-        if (result == null) {
-            return;
-        }
-
-        datas.value = result;
-    }
+async function nextRound() {
+    isNextRounding.value = true;
 
     if (round >= maxRound.value || currentSource.value.disable) {
         round = 0;
@@ -193,47 +153,75 @@ async function updateCard() {
     }
 
     const roundIndex = round * groupSize.value;
+    round++;
 
-    cardElements.value.forEach((card, index) => {
+    await Promise.all(cardElements.value.map((card, index) => (async () => {
         const cardDataIndex = roundIndex + index;
 
-        if (cardDataIndex >= datas.value!.length) {
-            setCardData(card, cardDataIndex, emptyData);
+        if (cardDataIndex >= datas.value.length) {
+            await setCardData(card, cardDataIndex, emptyData);
             return;
         }
 
-        const data = datas.value![cardDataIndex];
-        setCardData(card, cardDataIndex, data);
-    });
-
-    round++;
+        const data = datas.value[cardDataIndex];
+        await setCardData(card, cardDataIndex, data);
+    })()));
 
     updateProgress();
-}
 
-async function fetchData() {
-    try {
-        const response = await fetch(currentSource.value.url);
-        const hotboardData: HotboardData = await response.json();
+    isNextRounding.value = false;
 
-        const { result, updateTime } = hotboardData;
+    async function fetchData() {
+        try {
+            const response = await fetch(currentSource.value.url);
+            const hotboardData: HotboardData = await response.json();
 
-        lastUpdateDate.value = updateTime ? new Date(updateTime) : getSchoolDate();
-        return result;
-    } catch (e) {
-        return null;
+            const { result } = hotboardData;
+            return result;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function setCardData(card: HTMLElement, cardIndex: number, data: CardData) {
+        const { image, title } = data;
+
+        const indexElem = card.querySelector(".index")! as HTMLElement;
+        const imgElem = card.querySelector("img")! as HTMLElement;
+        const titleElem = card.querySelector(".title")! as HTMLElement;
+
+        await animations.change({
+            element: card,
+            shouldChange: () => true,
+            changeConsumer: () => {
+                indexElem.textContent = "" + (cardIndex + 1);
+                imgElem.setAttribute("src", image);
+                titleElem.textContent = title;
+            },
+            frames: {
+                offset: [0, 1],
+                transform: ["", "translate(-120%, 0)"],
+                filter: ["", "blur(4px)"],
+            },
+            options: {
+                duration: 2000,
+                delay: cardIndex * 600,
+                easing: "cubic-bezier(0.42, 0, 0.58, 1)",
+            }
+        });
     }
 }
 
 function updateProgress() {
-    currentSource.value.progress = updateCardInterval.progress;
+    currentSource.value.progress = nextRoundTask.progress;
 }
-
 </script>
 
 <template>
-    <div class="container board_title" @click="!updatingCard ? updateManuallyDeb() : 0">
-        <InfoBar :data="currentSource"></InfoBar>
+    <div class="container board_title" @click="!isNextRounding && nextRoundTask.run()">
+        <InfoBar :data="currentSource">
+            <span ref="barTextElem" class="source_name"></span>
+        </InfoBar>
     </div>
 
     <div class="container board_body">
@@ -245,7 +233,7 @@ function updateProgress() {
             热搜榜暂闭
         </div>
 
-        <div class="container card" v-for="data in groupSize" ref="cardElements">
+        <div class="container card" v-for="_data in groupSize" ref="cardElements">
             <div class="image_wrapper">
                 <div class="index"></div>
                 <img src="">
@@ -269,35 +257,19 @@ function updateProgress() {
 }
 
 .board_title :deep(.bar) {
-    position: relative;
-    top: 50%;
-
     width: 90%;
     height: 75%;
 
     border-radius: 30px;
-
-    background-color: rgba(255, 255, 255, 0.2);
-
-    overflow: hidden;
-
-    z-index: -1;
 }
 
-.board_title :deep(.content) {
-    color: white;
-    font-size: 1.5em;
-}
-
-h1 {
+.source_name {
     color: white;
 
-    font-size: 1.5em;
-}
+    font-size: 1.25em;
 
-h2 {
-    font-size: 0.5em;
-    color: #121212;
+    text-shadow: 1px 1px 1px var(--color);
+    lighting-color: var(--color);
 }
 
 .info_wrapper {

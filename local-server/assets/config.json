@@ -7,7 +7,11 @@
         "enableUnsplash": false,
         "unsplashKey": "",
         "fetchCount": 60,
-        "nextPageInterval": 0.05
+        "nextPageInterval": 0.05,
+
+        "images": [
+            "板机.jpg",
+        ]
     },
     "courses": {
         "nextDayTime": "21:00",
@@ -81,8 +85,18 @@
     },
     "hotboard": {
         "groupSize": 4,
-        "maxRound": 5,
-        "updateCardPerMinute": 5
+        "updateCardPerMinute": 5,
+        "source": {
+            "百度热搜": {
+                "round": 4,
+            },
+            "央视国际新闻": {
+                "round": 2,
+            },
+            "央视军事新闻": {
+                "round": 2,
+            },
+        },
     },
     "weather": {
         "hefengKey": "",

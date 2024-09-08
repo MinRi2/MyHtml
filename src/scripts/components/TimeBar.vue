@@ -1,45 +1,80 @@
 <script setup lang="ts">
-import { TimeInterval, dayStringMap, getSchoolDate } from "../utils/dateUtils";
-import * as animations from "../utils/animations";
+import { IntervalTask, dayStringMap, getSchoolDate, withinTime } from "../utils/dateUtils";
+import animations from "../utils/animations";
 import * as chroma from "chroma-js"
-import { inject, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch, watchEffect } from "vue";
 import { BarSchedule } from "../types/timeBar";
 import { TimeBarOptions } from "../paperOptions";
 import { coursesData } from "../types/courses";
-import { stringObj } from "../utils/typeUtils";
+import InfoBar from "./InfoBar.vue";
+import { ProgressData } from "../types/progress";
+import useColoredText from "../hooks/useColoredText";
+import { useSingleArray } from "../hooks/useSingleObject";
 
 const { daySchedules } = coursesData;
 
-const defaultBarSchedule = new BarSchedule("", "", "", "white");
-
-const barSchedules: BarSchedule[] = [];
+const {
+    currentData: currentSchedule,
+    popData: popSchedule,
+    array: barSchedules
+} = useSingleArray<BarSchedule>([]);
 
 var lastColor = chroma.random().hex();
-var currentSchedule = ref<BarSchedule | null>(defaultBarSchedule);
-
-var fract = ref(0);
 var shadowColor = ref("");
-var gradientColor = ref("");
 
-const barNameElem = ref(null), barScheduleElem = ref(null);
 const customTextChangeFrames = {
     filter: ["", "blur(8px) contrast(300%)"],
     transform: ["", ""],
 };
 
-const refreshBarInterval = new TimeInterval(() => refreshBar(), 3 * 1000, false);
+const barNameElem = ref<HTMLElement>(), barScheduleElem = ref<HTMLElement>();
+const barNameData = useColoredText({
+    frames: customTextChangeFrames,
+}), barScheduleData = useColoredText({
+    frames: customTextChangeFrames,
+});
+
+const barData: ProgressData = reactive({
+    linear: "",
+    progress: 0,
+});
+
+const refreshBarInterval = new IntervalTask(() => refreshBar(), 3 * 1000, false);
 
 const { options } = defineProps<{
     options: TimeBarOptions
 }>();
 
 onMounted(() => {
+    barNameData.element = barNameElem.value;
+    barScheduleData.element = barScheduleElem.value;
+
     refreshBarInterval.enable();
 
     watch(() => [options.extraBar, options.defaultBar, daySchedules], () => {
         readOptions();
         refreshBar();
-    }, { deep: true });
+    }, { deep: true, immediate: true });
+
+    watch(currentSchedule, barSchedule => {
+        if (!barSchedule) {
+            barNameData.text = "-";
+            barNameData.color = "white";
+            barScheduleData.text = "";
+            barData.linear = "";
+            return;
+        }
+
+        const { name, startTime, endTime, color } = barSchedule;
+
+        shadowColor.value = color;
+        const gradientColor = chroma.scale([lastColor, color]).mode("lab").colors(8).join(",");
+
+        barNameData.text = name;
+        barNameData.color = color;
+        barScheduleData.text = `${startTime}-${endTime}`;
+        barData.linear = `linear-gradient(to right, ${gradientColor})`;
+    }, { deep: true, immediate: true });
 });
 
 onUnmounted(() => {
@@ -54,7 +89,6 @@ function readOptions() {
     barSchedules.splice(0, barSchedules.length);
 
     const handleBarSchedules: BarSchedule[] = [];
-    currentSchedule.value = null;
 
     if (extraBar) {
         const todayName = dayStringMap[today];
@@ -90,76 +124,24 @@ function readOptions() {
 }
 
 function refreshBar() {
-    const nowDate = getSchoolDate();
+    const schedule = currentSchedule.value;
 
-    if (barSchedules.length == 0) {
-        currentSchedule.value = null;
-
-        setStyle(defaultBarSchedule);
+    if (!schedule) {
         return;
     }
 
-    if (currentSchedule.value == null) {
-        currentSchedule.value = barSchedules[0];
+    const nowDate = getSchoolDate();
+    const startDate = schedule.getStartDate(), endDate = schedule.getEndDate();
 
-        setStyle(currentSchedule.value);
+    if (withinTime(startDate, endDate, nowDate)) {
+        barData.progress = (+nowDate - +startDate) / (+endDate - +startDate);
     } else {
-        updateCutbox();
+        barData.progress = 0;
 
-        const endDate = currentSchedule.value.getEndDate();
-
-        if (endDate < nowDate) {
-            barSchedules.splice(0, 1);
-            lastColor = currentSchedule.value.color;
-            currentSchedule.value = null;
+        if (nowDate > endDate) {
+            lastColor = schedule.color;
+            popSchedule(false);
         }
-    }
-
-    function updateCutbox() {
-        if (!currentSchedule.value) {
-            return;
-        }
-
-        const startDate = currentSchedule.value.getStartDate(),
-            endDate = currentSchedule.value.getEndDate();
-
-        if (nowDate > startDate) {
-            fract.value = (+nowDate - +startDate) / (+endDate - +startDate);
-        }
-
-        if (nowDate < startDate || endDate < nowDate) {
-            fract.value = 0;
-        }
-    }
-
-    function setStyle(newSchedule: BarSchedule) {
-        const { name, startTime, endTime, color } = newSchedule;
-
-        shadowColor.value = color;
-        gradientColor.value = chroma.scale([lastColor, color]).mode("lab").colors(8).join(",");
-
-        const scheduleText = `${startTime}-${endTime}`;
-
-        const nameElem = barNameElem.value,
-            scheduleElem = barScheduleElem.value;
-
-        if (nameElem) animations.textInnerHtmlChange({
-            element: nameElem,
-            innerHTML: name,
-            frames: customTextChangeFrames,
-            options: {
-                duration: 1000,
-            }
-        });
-
-        if (scheduleElem) animations.textInnerHtmlChange({
-            element: scheduleElem,
-            innerHTML: scheduleText,
-            frames: customTextChangeFrames,
-            options: {
-                duration: 1000,
-            }
-        });
     }
 }
 
@@ -182,42 +164,26 @@ function addBarSchedules(barScheduleArray: BarSchedule[]) {
 </script>
 
 <template>
-    <div class="bar">
-        <div class="bar_cutbox" :style="{
-            width: fract * 2 * 100 + '%',
-            backgroundImage: `linear-gradient(to right, ${gradientColor})`,
-        }"></div>
-
+    <InfoBar :data="barData">
         <h1 id="bar_name" ref="barNameElem" :style="{
             '--text-shadow-color': shadowColor,
         }"></h1>
         <h2 id="time" ref="barScheduleElem"></h2>
-    </div>
+    </InfoBar>
 </template>
 
 <style scoped>
-.bar_cutbox {
-    position: absolute;
-    top: 50%;
-    left: 0%;
-    transform: translate(-50%, -50%);
-
-    width: 0px;
-    aspect-ratio: 1/1;
-    border-radius: 50%;
-
-    /* background-image: linear-gradient(to right, red, orange); */
-    transition: all 2s linear;
+.bar {
+    border-radius: 0px;
 }
 
-.bar {
+:deep(.content) {
     padding: 16px;
-    width: 15em;
 }
 
 .bar h1 {
     font-weight: normal;
-    font-size: 1.5em;
+    font-size: 1em;
     text-shadow:
         1px 1px 3px var(--text-shadow-color),
         4px 4px 3px var(--text-shadow-color);
@@ -225,7 +191,7 @@ function addBarSchedules(barScheduleArray: BarSchedule[]) {
 
 .bar h2 {
     font-weight: normal;
-    font-size: 1em;
+    font-size: 0.75em;
     text-shadow:
         1px 1px 3px var(--text-shadow-color),
         4px 4px 3px var(--text-shadow-color);

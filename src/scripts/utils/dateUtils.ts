@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { Ref, ref } from "vue";
 import { Disable } from "./typeUtils";
 
 const dateOffset = ref(0); // 学校时间偏移 ms
@@ -109,11 +109,11 @@ enum WithinStatus {
     OVER = 'over',
 }
 
-class TimeWihtinTask extends Disable {
+class WihtinTask extends Disable {
     public status: WithinStatus;
     public schedule: TimeSchedule;
 
-    private timeInterval: TimeInterval;
+    private timeInterval: IntervalTask;
 
     private interval: number;
 
@@ -136,7 +136,7 @@ class TimeWihtinTask extends Disable {
         this.overCons = overCons;
 
         this.schedule = TimeSchedule.toTimeSchedule(schedule);
-        this.timeInterval = new TimeInterval(() => {
+        this.timeInterval = new IntervalTask(() => {
             this.checkStatus();
         }, interval);
 
@@ -228,14 +228,14 @@ class TimeWihtinTask extends Disable {
     }
 }
 
-class TimeWithinTasks extends Disable {
+class WithinTasks extends Disable {
     public finished = false;
 
     private index: number = 0;
 
     private interval: number;
     private tasks: TimeSchedule[];
-    private currentTask: TimeWihtinTask;
+    private currentTask: WihtinTask;
 
     private waitCons: () => void;
     private withinCons: () => void;
@@ -287,7 +287,7 @@ class TimeWithinTasks extends Disable {
 
         const schedule = this.tasks[this.index++];
 
-        this.currentTask = new TimeWihtinTask({
+        this.currentTask = new WihtinTask({
             schedule: schedule,
             interval: this.interval,
             waitCons: this.waitCons,
@@ -301,14 +301,16 @@ class TimeWithinTasks extends Disable {
 
 }
 
-class TimeInterval extends Disable {
+class IntervalTask extends Disable {
     private intervalId: any;
+    private startTime: number;
 
     constructor(
-        public fn: () => void,
+        private fn: () => any,
         private interval: number,
         enable: boolean = true,
-        run: boolean = false,
+        runImmediately: boolean = false,
+        private recordProgress = false,
     ) {
         super();
 
@@ -316,19 +318,21 @@ class TimeInterval extends Disable {
             this.enable();
         }
 
-        if (run) {
-            fn();
+        if (runImmediately) {
+            this.run();
         }
     }
 
     public run() {
-        this.fn();
+        this.fn.apply(null);
+
+        this.recordStartTime();
     }
 
     public restart(run: boolean = true): void {
         super.restart();
 
-        if(run){
+        if (run) {
             this.run();
         }
     }
@@ -337,18 +341,34 @@ class TimeInterval extends Disable {
         this.interval = interval;
 
         if (this.enabled) {
-            this.disable();
-            this.enable();
+            this.restart(false);
         }
     }
 
     protected override onEnabled(): void {
-        this.intervalId = setInterval(this.fn, this.interval);
+        this.intervalId = setInterval(() => this.run(), this.interval);
+        this.recordStartTime();
     }
 
     protected override onDisabled(): void {
         clearInterval(this.intervalId);
     }
+
+    private recordStartTime(): void {
+        if (this.recordProgress) {
+            this.startTime = +getSchoolDate();
+        }
+    }
+
+    /**
+     * 返回进度
+     */
+    public get progress(): number {
+        if (!this.recordProgress) return -1;
+
+        return (+getSchoolDate() - this.startTime) / this.interval;
+    }
+
 }
 
 type DayName = '周日' | '周一' | '周二' | '周三' | '周四' | '周五' | '周六';
@@ -547,7 +567,7 @@ function withinTime(startDate: ValidDate, endDate: ValidDate, date: ValidDate = 
 function checkIntervalOrOver(date: ValidDate, func: Function, overFunc: Function, timeInterval: number = 1000) {
     const checkDate = toDate(date);
 
-    const interval = new TimeInterval(() => {
+    const interval = new IntervalTask(() => {
         const nowDate = new Date();
         const left: number = +checkDate - +nowDate;
 
@@ -563,6 +583,6 @@ function checkIntervalOrOver(date: ValidDate, func: Function, overFunc: Function
 }
 
 export { DayName }
-export { TimeSchedule, ValidDate, ValidTimeSchedule, TimeWihtinTask as TimeWihtin, TimeWithinTasks as TimeWithinAll, TimeInterval }
+export { TimeSchedule, ValidDate, ValidTimeSchedule, WihtinTask, WithinTasks, IntervalTask }
 export { WithinStatus, dayStringMap, dateOffset, weekStartDate }
 export { withinTime, checkIntervalOrOver, toDate, dateToString, getSchoolDate, getSchoolWeek }

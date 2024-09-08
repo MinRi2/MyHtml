@@ -1,9 +1,8 @@
-import DynamaticPaperAppVue from "./components/DynamaticPaperApp.vue"
+import DynamaticPaperAppVue from "./DynamaticPaperApp.vue"
 import { createApp } from "vue"
 import "../css/style.css"
-import background from "../images/default.jpg"
+import background from "../images/default.png"
 
-var mounted = false;
 
 window.addEventListener("load", initDynamicPaper);
 window.addEventListener("resize", resizeBody);
@@ -11,20 +10,12 @@ window.addEventListener("resize", resizeBody);
 function initDynamicPaper() {
     const app = createApp(DynamaticPaperAppVue);
 
-    setTimeout(mountApp, 60 * 1000);
 
     resizeBody();
 
+    app.mount("#app");
+
     document.body.style.background = `url(${background})`;
-    document.body.addEventListener("click", mountApp);
-
-    function mountApp() {
-        if (!mounted) {
-            app.mount("#app");
-        }
-
-        mounted = true;
-    }
 }
 
 function resizeBody() {

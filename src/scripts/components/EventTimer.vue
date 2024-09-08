@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import { TimerEvent } from '../types/event-timer';
-import { getSchoolDate, dateToString, TimeInterval, dayStringMap } from '../utils/dateUtils';
-import * as animations from "../utils/animations";
+import { getSchoolDate, dateToString, IntervalTask, dayStringMap } from '../utils/dateUtils';
+import animations from "../utils/animations";
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { EventTimerOptions, TimerEventOptions } from '../paperOptions';
 import { coursesData } from '../types/courses';
 import { format } from '../utils/stringUtils';
+import useQuantumNum from '../hooks/useQuantumNum';
 
 const { options } = defineProps<{
     options: EventTimerOptions,
 }>();
-
-watch(options.events, () => {
-    readOptions();
-});
 
 //#region vars
 const { daySchedules } = coursesData;
@@ -42,10 +39,10 @@ const displayDay = ref(0),
     displayMinute = ref(0),
     displaySecond = ref(0);
 
-const dayPercent = ref(0),
-    hourPercent = ref(0),
-    minutePercent = ref(0),
-    secondPercent = ref(0);
+const dayPercent = useQuantumNum(0, 0, 10),
+    hourPercent = useQuantumNum(0, 0, 10),
+    minutePercent = useQuantumNum(0, 0, 10),
+    secondPercent = useQuantumNum(0, 0, 10);
 
 const showDay = computed(() => displayDay.value != 0),
     showHour = computed(() => showDay.value || displayHour.value != 0),
@@ -62,10 +59,14 @@ const customFrames = {
     transform: ["", ""],
 }
 
-const refreshInterval = new TimeInterval(refreshTimer, 800, false);
+const refreshInterval = new IntervalTask(refreshTimer, 800, false);
 
 onMounted(() => {
     refreshInterval.enable();
+
+    watch(options.events, () => {
+        readOptions();
+    }, { immediate: true });
 });
 
 onUnmounted(() => {
@@ -107,7 +108,6 @@ function refreshTimer() {
     setTime(days, hours, minutes, seconds, currentEvent);
 
     function setInfo(name: string, endTimeText: string, discription: string, color: string) {
-
         shadowColor.value = color;
 
         if (eventNameElem.value) animations.textInnerHtmlChange({
@@ -218,7 +218,7 @@ function readOptions() {
     <div class="container">
         <div class="timer_block" v-if="showDay">
             <div class="cutbox" ref="cutboxDay" :style="{
-                transform: `translate(0, ${dayPercent}%)`,
+                top: `${dayPercent}%`,
                 background: `#ff82829e`,
             }"></div>
             <h1 ref="timerDay">{{ displayDay }}</h1>
@@ -227,7 +227,7 @@ function readOptions() {
 
         <div class="timer_block" v-if="showHour">
             <div class="cutbox" ref="cutboxHour" :style="{
-                transform: `translate(0, ${hourPercent}%)`,
+                top: `${hourPercent}%`,
                 background: `#93ff829e`,
             }"></div>
             <h1 ref="timerHour">{{ displayHour }}</h1>
@@ -236,7 +236,7 @@ function readOptions() {
 
         <div class="timer_block" v-if="showMinute">
             <div class="cutbox" ref="cutboxMinute" :style="{
-                transform: `translate(0, ${minutePercent}%)`,
+                top: `${minutePercent}%`,
                 background: `#82c8ff9e`,
             }"></div>
             <h1 ref="timerMinute">{{ displayMinute }}</h1>
@@ -245,7 +245,7 @@ function readOptions() {
 
         <div class="timer_block" v-if="showSecond">
             <div class="cutbox" ref="cutboxSecond" :style="{
-                transform: `translate(0, ${secondPercent}%)`,
+                top: `${secondPercent}%`,
                 background: `#00bcd49e`,
             }"></div>
             <h1 ref="timerSecond">{{ displaySecond }}</h1>
@@ -318,12 +318,12 @@ function readOptions() {
 
 .cutbox {
     position: absolute;
-    bottom: 0px;
+    top: 0;
 
     width: 100%;
     aspect-ratio: 1/1;
 
-    /* transition: all 2s linear; */
+    transition: all 0.7s ease-in-out;
 
     z-index: -2;
 }

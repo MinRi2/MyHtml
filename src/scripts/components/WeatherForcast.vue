@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
 import { WeatherChart, weatherChartType, WeatherTypeName } from '../types/wether-forcast-board';
 import { WeatherForcastOptions } from '../paperOptions';
 import { GroupedElement } from '../types/elementGroup';
-import { TimeInterval, TimeWithinAll } from '../utils/dateUtils';
+import { IntervalTask, WithinTasks } from '../utils/dateUtils';
 
 const props = defineProps<{
     options: WeatherForcastOptions,
@@ -19,8 +19,8 @@ const weatherLastUpdated = ref<HTMLElement>();
 const weatherShowType = ref<HTMLElement>();
 const weatherChart = ref<HTMLDivElement>();
 
-var showWithinInterval: TimeWithinAll;
-var show7dWithinInterval: TimeWithinAll;
+var showWithinInterval: WithinTasks;
+var show7dWithinInterval: WithinTasks;
 
 var showTypeAuto = ref<WeatherTypeName>('24h');
 var showTypeName = computed(() => {
@@ -31,7 +31,7 @@ var showTypeName = computed(() => {
     return showTypeAuto.value;
 });
 
-const chartMoveInterval = new TimeInterval(() => {
+const chartMoveInterval = new IntervalTask(() => {
     chart.moveChart();
 }, 10 * 1000, false);
 
@@ -77,7 +77,7 @@ onMounted(() => {
             return;
         }
 
-        showWithinInterval = new TimeWithinAll({
+        showWithinInterval = new WithinTasks({
             schedule: scheduleArrary,
             interval: 3 * 1000,
             waitCons: () => groupedElement.hide(),
@@ -97,7 +97,7 @@ onMounted(() => {
             return;
         }
 
-        show7dWithinInterval = new TimeWithinAll({
+        show7dWithinInterval = new WithinTasks({
             schedule: scheduleArrary,
             interval: 3 * 1000,
             waitCons: () => showTypeAuto.value = '24h',

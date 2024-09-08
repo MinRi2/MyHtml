@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Topics } from '../types/picturePaper';
-import defaultImage from '../../images/default.jpg';
 import { createApi } from 'unsplash-js';
 import { computed, onMounted, ref, watch, watchEffect } from 'vue';
 import { Random } from 'unsplash-js/dist/methods/photos/types';
 import { RandomParams } from 'unsplash-js/dist/methods/photos';
-import { TimeInterval } from '../utils/dateUtils';
+import { IntervalTask } from '../utils/dateUtils';
 import { PicturePaperOptions } from '../paperOptions';
+import { localUrl } from '../vars';
 
 const { options } = defineProps<{
     options: PicturePaperOptions,
@@ -36,31 +36,41 @@ const imageParams = new URLSearchParams({
     h: "" + screen.height,
 });
 
-const loadedImages: HTMLImageElement[] = [];
+const imageLoaded: HTMLImageElement[] = [];
+const urlLoaded: string[] = [];
 
-var imageUrl = ref(defaultImage);
+var imageUrl = ref<string>("");
 var index = 0;
 
-const fetchIntveral = new TimeInterval(() => {
-    if (loadedImages.length >= fetchCount) {
+const baseImageUrl = `${localUrl}/static/images`;
+
+const fetchIntveral = new IntervalTask(() => {
+    if (imageLoaded.length >= fetchCount) {
         fetchIntveral.disable();
     } else {
         fetchImages();
     }
 }, 5 * 60 * 1000, false);
 
-const nextPageInterval = new TimeInterval(() => {
+const nextPageInterval = new IntervalTask(() => {
+    if (imageLoaded.length == 0) {
+        return;
+    }
+
     index++;
 
-    index = index < 0 ? (loadedImages.length - 1) : index >= loadedImages.length ? 0 : index;
+    index = index < 0 ? (imageLoaded.length - 1) : index >= imageLoaded.length ? 0 : index;
 
-    imageUrl.value = loadedImages[index].src;
+    imageUrl.value = imageLoaded[index].src;
 }, 5 * 60 * 1000, false);
 
-watch(() => options.unsplashKey, () => {
-    loadedImages.splice(1, loadedImages.length);
-    fetchImages();
-});
+watch(() => options.images, images => {
+    if (!images) return;
+
+    images.forEach((url: string) => {
+        preloadImage(`${baseImageUrl}/${url}`);
+    });
+}, { deep: true });
 
 watchEffect(() => {
     fetchCount = options.fetchCount;
@@ -69,12 +79,13 @@ watchEffect(() => {
 
     fetchIntveral.setInterval(options.fetchInterval * 60 * 1000);
     nextPageInterval.setInterval(options.nextPageInterval * 60 * 1000);
-
 });
 
-onMounted(() => {
-    preloadImage(defaultImage);
+watch(() => options.topics, value => {
+    randomParams.topicIds = value ?? [Topics.nature];
+})
 
+onMounted(() => {
     nextPageInterval.enable();
     fetchIntveral.enable();
 });
@@ -102,7 +113,7 @@ function fetchImages() {
 
     function loadImages(randomImages: Random[]) {
         randomImages.forEach(randomImage => {
-            const url = randomImage.urls.raw + "&" + imageParams;
+            const url = `${randomImage.urls.raw}&${imageParams}`;
 
             preloadImage(url);
         });
@@ -110,12 +121,17 @@ function fetchImages() {
 }
 
 function preloadImage(url: string) {
+    if (urlLoaded.includes(url)) {
+        return;
+    }
+
     const image = new Image();
-    image.onload = function () {
-        loadedImages.push(image);
+    image.onload = () => {
+        imageLoaded.push(image);
     }
     image.src = url;
 
+    urlLoaded.push(url);
 }
 </script>
 

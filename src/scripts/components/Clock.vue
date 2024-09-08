@@ -1,20 +1,45 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
-import * as animations from "../utils/animations"
-import { TimeInterval, getSchoolDate } from "../utils/dateUtils";
+import { AnimationData } from "../utils/animations"
+import { IntervalTask, getSchoolDate } from "../utils/dateUtils";
+import useColoredText from "../hooks/useColoredText";
 
 const clockYear = ref<HTMLElement>(), clockMonth = ref<HTMLElement>(), clockDay = ref<HTMLElement>();
 const clockHour = ref<HTMLElement>(), clockMinute = ref<HTMLElement>(), clockSecond = ref<HTMLElement>();
 
-const customTextChangeFrames = {
-    filter: ["", "blur(10px)"],
-    transform: ["", ""],
-};
+var dateInterval = new IntervalTask(refreshDate, 60 * 1000, false);
+var dayInterval = new IntervalTask(refreshDay, 1000, false);
 
-var dateInterval = new TimeInterval(refreshDate, 60 * 1000, false);
-var dayInterval = new TimeInterval(refreshDay, 1000, false);
+const animation: AnimationData = {
+    frames: {
+        filter: ["", "blur(10px)"],
+        transform: ["", ""],
+    },
+    options: {
+        duration: 400,
+    }
+}
+
+const yearData = useColoredText(animation),
+    monthData = useColoredText(animation),
+    dayData = useColoredText(animation),
+    hourData = useColoredText(animation),
+    minuteData = useColoredText(animation),
+    secondData = useColoredText({
+        ...animation,
+        options: {
+            duration: 100,
+        }
+    });
 
 onMounted(() => {
+    yearData.element = clockYear.value;
+    monthData.element = clockMonth.value;
+    dayData.element = clockDay.value;
+    hourData.element = clockHour.value;
+    minuteData.element = clockMinute.value;
+    secondData.element = clockSecond.value;
+
     dateInterval.enable();
     dayInterval.enable();
 
@@ -33,11 +58,9 @@ function refreshDate() {
         month = fixed(nowDate.getMonth() + 1),
         day = fixed(nowDate.getDate());
 
-    if (clockYear.value) change(clockYear.value, year, 400);
-
-    if (clockMonth.value) change(clockMonth.value, month, 400);
-
-    if (clockDay.value) change(clockDay.value, day, 400);
+    yearData.text = year;
+    monthData.text = month;
+    dayData.text = day;
 }
 
 function refreshDay() {
@@ -47,26 +70,9 @@ function refreshDay() {
         minute = fixed(nowDate.getMinutes()),
         second = fixed(nowDate.getSeconds());
 
-    if (clockHour.value) change(clockHour.value, hour, 500);
-
-    if (clockMinute.value) change(clockMinute.value, minute, 500);
-
-    if (clockSecond.value) change(clockSecond.value, second, 150);
-}
-
-function change(element: HTMLElement, time: string, duration: number) {
-    if (!element) {
-        return;
-    }
-
-    animations.textInnerHtmlChange({
-        element: element,
-        innerHTML: time,
-        frames: customTextChangeFrames,
-        options: {
-            duration: duration,
-        }
-    });
+    hourData.text = hour;
+    minuteData.text = minute;
+    secondData.text = second;
 }
 
 function fixed(num: number): string {
@@ -85,17 +91,21 @@ function fixed(num: number): string {
     </div>
     <div class="container time_clock">
         <div class="time_clock_block">
-            <div class="time" id="clock_hour" ref="clockHour"></div>
+            <div class="time" ref="clockHour"></div>
             <div class="unit">时</div>
         </div>
+
         <div class="splitter"></div>
+
         <div class="time_clock_block">
-            <div class="time" id="clock_minute" ref="clockMinute"></div>
+            <div class="time" ref="clockMinute"></div>
             <div class="unit">分</div>
         </div>
+
         <div class="splitter"></div>
+
         <div class="time_clock_block">
-            <div class="time" id="clock_second" ref="clockSecond"></div>
+            <div class="time" ref="clockSecond"></div>
             <div class="unit">秒</div>
         </div>
     </div>
