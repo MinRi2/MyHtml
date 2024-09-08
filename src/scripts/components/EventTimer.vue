@@ -323,7 +323,7 @@ function readOptions() {
     width: 100%;
     aspect-ratio: 1/1;
 
-    transition: all 0.7s ease-in-out;
+    /* transition: all 0.7s ease-in-out; */
 
     z-index: -2;
 }
